@@ -1,5 +1,4 @@
 from prompts import AGENT_SYSTEM_PROMPT
-from router import AGENT_SYSTEM_PROMPT
 from openai import AsyncOpenAI
 
 
