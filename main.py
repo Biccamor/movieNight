@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from routers.recommendation import recommendation
+from routers.recommendation import router as recommendation_router
 
 app = FastAPI()
-app.add_route(recommendation)
+app.include_router(recommendation_router)
 
 @app.get("/")
 async def main():

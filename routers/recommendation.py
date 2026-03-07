@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from engine.llm_engine import llm_response
 from schemas import Data
 
-app = APIRouter(prefix="/recommendation", tags=["reccomendation"])
+router = APIRouter(prefix="/recommendation", tags=["reccomendation"])
 
 def create_prompt(data_preferences: list[dict], meeting_type) -> str:
     AGENT_SYSTEM_PROMPT = ""
@@ -21,8 +21,8 @@ def create_prompt(data_preferences: list[dict], meeting_type) -> str:
     return AGENT_SYSTEM_PROMPT
 
 
-@app.post("/{group_id}")
-async def recommendation(meta_data: Data) -> dict:
+@router.post("/{group_id}")
+async def get_recommendation(meta_data: Data) -> dict:
 
     user_list = meta_data.users
     meeting_type = meta_data.meeting
