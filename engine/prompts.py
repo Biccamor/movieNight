@@ -10,6 +10,8 @@ Use the following JSON schema:
   "thought": "A brief, high-level summary of how you combined the preferences (in English).",
   "movie_title": "The Polish title of the movie (and original in parentheses).",
   "reasoning_pl": "A personalized explanation in Polish for the group."
+
+  "extra_movies": "two other movie titles that are not so perfect as the main, but still good for users"
 }
 
 ---
