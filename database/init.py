@@ -11,4 +11,9 @@ class User(SQLModel, table=True):
     """
     __table_args__ = (UniqueConstraint("email"),)
     user_id: int | None = Field(default=None, primary_key=True)
-    email: str
+    email: str = Field(unique=True, index=True)
+    hash_password: str
+
+def create_tables():
+    engine = "postgresql://my_user:my_pwd@localhost:5432/my_db"
+    SQLModel.metadata.create_all(engine)    
