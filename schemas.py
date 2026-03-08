@@ -1,4 +1,6 @@
-from pydantic import BaseModel 
+from typing import Self
+
+from pydantic import BaseModel, Field, EmailStr, model_validator
 from uuid import uuid4
 
 """
@@ -23,3 +25,19 @@ class Data(BaseModel):
     meeting: str
     id: uuid4
     users: list[User]
+
+class Register(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, title="Your password must have at least 8 characters", max_length=100)
+    confirm_password: str
+
+    @model_validator(mode="after")
+    def password_match(self) -> Self:
+        if self.password == self.confirm_password:
+            return self
+    
+        return ValueError("Passwords don't match") 
+
+class Login(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, title="Enter your password")
