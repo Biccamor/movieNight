@@ -1,3 +1,18 @@
-moviesdb
-pgpass
-pguser
+version: '3.3'
+services:
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    container_name: my-postgres
+    environment:
+      POSTGRES_DB: my_db
+      POSTGRES_USER: my_user
+      POSTGRES_PASSWORD: my_pwd
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      -
+        type: bind
+        source: /tmp/postgres-data
+        target: /var/lib/postgresql/data
