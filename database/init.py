@@ -1,4 +1,4 @@
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, create_engine
 from sqlalchemy import UniqueConstraint
 
 
@@ -14,6 +14,3 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True, index=True)
     hash_password: str
 
-def create_tables():
-    engine = "postgresql://my_user:my_pwd@localhost:5432/my_db"
-    SQLModel.metadata.create_all(engine)    
