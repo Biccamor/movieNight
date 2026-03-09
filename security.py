@@ -2,17 +2,13 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
 def hash_password(password: str):
-    """
-        Zamiana hasła podanego przez uzytkownika na hash
-    """
+    """Zamiana hasła podanego przez uzytkownika na hash"""
     ph = PasswordHasher()
     hashed = ph.hash(password=password)
     return hashed
 
 def verify_password(hashed_password: str, password: str) -> bool:
-    """
-        Sprawdzenie czy uzytkownik podal poprawne haslo
-    """
+    """Sprawdzenie czy uzytkownik podal poprawne haslo"""
 
     ph = PasswordHasher()
 

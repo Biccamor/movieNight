@@ -1,6 +1,8 @@
-from sqlmodel import Field, SQLModel, create_engine
+from sqlmodel import Field, SQLModel, Column, JSON
 from sqlalchemy import UniqueConstraint
-
+from uuid import UUID, uuid4
+from pgvector.sqlalchemy import Vector
+from datetime import date
 
 class User(SQLModel, table=True):
     """
@@ -10,7 +12,45 @@ class User(SQLModel, table=True):
         hash_password
     """
     __table_args__ = (UniqueConstraint("email"),)
-    user_id: int | None = Field(default=None, primary_key=True)
+    user_id: UUID = Field(default_factory=uuid4, primary_key=True)
     email: str = Field(unique=True, index=True)
     hash_password: str
 
+    user_taste: list[float] | None = Field(sa_column=Column(Vector(768)), default=None)
+
+class Movies(SQLModel, table=True):
+    movie_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    tmdb_id: int = Field(unique=True, index=True)
+
+    title: str  = Field(index=True)
+    description: str | None = Field(default=None)
+    genre: list[str] | None = Field(default=[], sa_column=Column(JSON))
+    poster_path: str| None = Field(default=None)
+    release_date: date | None = Field(default=None)
+    runtime: int | None = Field(default=None, index=True)
+
+    #TODO in future change Vector to 1536 (OPENAI API)
+    embedding: list[float] | None = Field(sa_column=Column(Vector(768), default=None))
+
+class Session(SQLModel,table=True):
+    session_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    
+    is_active: bool = Field(default=True)
+    max_runtime: int = Field(default=None, index=True)
+    occasion: str = Field(default=None, index=True)
+    preferences: dict = Field(default={}, sa_column=Column(JSON))
+    created_at: date | None = Field(default_factory=date.today)
+
+    users_in_session: list[UUID] = Field(default=[], sa_column=Column(JSON))
+    embedding_preferences: list[float] | None = Field(sa_column=Column(Vector(768)), default=None)
+
+
+class Rating(SQLModel, table=True):
+    rating_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    
+    user_id: UUID = Field(foreign_key="user.user_id", index=True)
+    movie_id: UUID = Field(foreign_key="movies.movie_id", index=True)
+    session_id: UUID = Field(foreign_key="session.session_id", index=True)
+    
+    rated_at: date | None = Field(default_factory=date.today)
+    rating: int = Field(default=0, index=True)
