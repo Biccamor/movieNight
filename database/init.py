@@ -19,6 +19,7 @@ class User(SQLModel, table=True):
     user_taste: list[float] | None = Field(sa_column=Column(Vector(768)), default=None)
 
 class Movies(SQLModel, table=True):
+
     movie_id: UUID = Field(default_factory=uuid4, primary_key=True)
     tmdb_id: int = Field(unique=True, index=True)
 
@@ -33,12 +34,15 @@ class Movies(SQLModel, table=True):
     embedding: list[float] | None = Field(sa_column=Column(Vector(768), default=None))
 
 class Session(SQLModel,table=True):
+
     session_id: UUID = Field(default_factory=uuid4, primary_key=True)
     
     is_active: bool = Field(default=True)
-    max_runtime: int = Field(default=None, index=True)
-    occasion: str = Field(default=None, index=True)
-    preferences: dict = Field(default={}, sa_column=Column(JSON))
+    max_runtime: int | None = Field(default=None, index=True)
+    occasion: str | None = Field(default=None, index=True)
+    have_seen: bool = Field(default=False)
+
+    preferences: dict | None= Field(default={}, sa_column=Column(JSON))
     created_at: date | None = Field(default_factory=date.today)
 
     users_in_session: list[UUID] = Field(default=[], sa_column=Column(JSON))
@@ -53,4 +57,5 @@ class Rating(SQLModel, table=True):
     session_id: UUID = Field(foreign_key="session.session_id", index=True)
     
     rated_at: date | None = Field(default_factory=date.today)
-    rating: int = Field(default=0, index=True)
+    # -1 = dislike 0 = have seen no opinion 1 = like 
+    rating: int = Field(default=0, index=True) 
