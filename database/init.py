@@ -38,14 +38,15 @@ class Session(SQLModel,table=True):
     session_id: UUID = Field(default_factory=uuid4, primary_key=True)
     
     is_active: bool = Field(default=True)
-    max_runtime: int | None = Field(default=None, index=True)
+    recomended_runtime: int | None = Field(default=None, index=True)
+    min_runtime: int | None = Field(default=None, index=True)
     occasion: str | None = Field(default=None, index=True)
-    have_seen: bool = Field(default=False)
+    allow_seen: dict[str, bool] = Field(default_factory=dict, sa_column=Column(JSON))
 
     preferences: dict | None= Field(default_factory=dict, sa_column=Column(JSON))
     created_at: date | None = Field(default_factory=date.today)
 
-    users_in_session: list[UUID] = Field(defaul_factory=list, sa_column=Column(JSON))
+    users_in_session: list[UUID] = Field(default_factory=list, sa_column=Column(JSON))
     embedding_preferences: list[float] | None = Field(sa_column=Column(Vector(768)), default=None)
 
 
