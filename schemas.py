@@ -1,7 +1,7 @@
 from typing import Self
 
 from pydantic import BaseModel, Field, EmailStr, model_validator
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 """
 Przyklad danych:
@@ -15,15 +15,17 @@ genre_dislike: [kobiety, mozg], time: [30 sekund] } ]
 class Preferences(BaseModel):
     genre_likes: list[str]
     genre_dislikes: list[str]
-    time: list[str]
+    allow_seen: bool = Field(default=False)
+    time: int
 
 class User(BaseModel):
+    user_id: UUID
     user_name: str
     preferences: Preferences
 
 class Data(BaseModel):
     meeting: str
-    id: uuid4
+    id: UUID
     users: list[User]
 
 class Register(BaseModel):

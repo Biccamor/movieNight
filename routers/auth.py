@@ -41,7 +41,7 @@ async def login_account(data: Login, session = Depends(get_session)):
     login_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Nieprawidłowy e-mail lub hasło",
-        headers={"WWW-Authenticate": "Bearer"}, # Standard dla 401
+        headers={"WWW-Authenticate": "Bearer"},
     )
     
     if not get_user:
