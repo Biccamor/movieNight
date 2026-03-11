@@ -1,2 +1,3 @@
 /movieNight
 /engine/__pycache__
+*.env

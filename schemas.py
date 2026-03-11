@@ -2,7 +2,7 @@ from typing import Self
 
 from pydantic import BaseModel, Field, EmailStr, model_validator
 from uuid import uuid4, UUID
-
+from pydantic_settings import BaseSettings, SettingsConfigDict
 """
 Przyklad danych:
 
@@ -43,3 +43,11 @@ class Register(BaseModel):
 class Login(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, title="Enter your password")
+
+class Settings(BaseSettings):
+    secret_key: str
+    algorithm: str
+    access_token_expire: int = 25
+    
+    model_config = SettingsConfigDict(env_file=".env")
+
