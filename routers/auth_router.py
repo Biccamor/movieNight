@@ -1,19 +1,15 @@
 from fastapi import APIRouter, HTTPException,status, Depends
 from schemas import Register, Login
-from security import hash_password, verify_password, signJWT, decodeJWT
-from sqlmodel import select, Session
+from security import hash_password, verify_password, signJWT, check_if_email_exists
+from sqlmodel import select
 from database.main_db import get_session
 from database.database_setup import User
 from uuid import uuid4
 
+
 router = APIRouter(prefix="/auth", tags=['auth'])
 
-def check_if_email_exists(email: str, session: Session) -> bool:
 
-    statement = select(User).where(User.email == email)
-    existing_user = session.exec(statement).first()
-    return existing_user == None
-    
 @router.post("/register")
 async def create_account(data: Register, session = Depends(get_session)):
     

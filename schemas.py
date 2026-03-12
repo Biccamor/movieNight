@@ -1,32 +1,37 @@
-from typing import Self
+from typing import Self, List, Literal, Optional
 
 from pydantic import BaseModel, Field, EmailStr, model_validator
 from uuid import uuid4, UUID
 from pydantic_settings import BaseSettings, SettingsConfigDict
-"""
-Przyklad danych:
 
-[id: 12asda3as367696969, typ_spotkania: "ruchanie", {user: "KarolZwyrtek", preferences: {genre_likes: [], 
-genre_dislike: [kobiety, mozg], time: [30 sekund] } ]
+class UserPreferences(BaseModel):
 
-"""
+    vibes: List[Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS"]]
+    hard_nos: List[Literal["SLOW_BURN", "GORE", "SAD_ENDING", "KIDS_STUFF"]] = Field(default_factory=list)
+    max_runtime: int = Field(default=120, ge=30, le=240)
+    allow_seen: bool = False
 
 
-class Preferences(BaseModel):
-    genre_likes: list[str]
-    genre_dislikes: list[str]
-    allow_seen: bool = Field(default=False)
-    time: int
-
-class User(BaseModel):
+class SessionUser(BaseModel):
     user_id: UUID
     user_name: str
-    preferences: Preferences
+    personal_vibe: UserPreferences
 
-class Data(BaseModel):
-    meeting: str
-    id: UUID
-    users: list[User]
+
+class MovieSession(BaseModel):
+    session_id: UUID = Field(default_factory=uuid4)
+    invite_code: str  # Np. "XJ79B" - do wejścia przez kod/QR
+    
+    meeting_type: Literal["RANDKA", "EKIPA", "RODZINA", "SOLO"]
+    
+    is_active: bool = True
+    users: List[SessionUser] = Field(default_factory=list)
+    
+    final_preferences: Optional[UserPreferences] = None
+
+class CreateSessionRequest(BaseModel):
+    host_id: UUID
+    meeting_type: Literal["RANDKA", "EKIPA", "RODZINA", "SOLO"]
 
 class Register(BaseModel):
     email: EmailStr
