@@ -1,31 +1,42 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from engine.llm_engine import llm_response
 from schemas import Data
+from database.database_setup import Session
+from database.main_db import get_session
+from uuid import uuid4
+from recommendation_uttils import create_prompt, calculate_recommended_time
 
 router = APIRouter(prefix="/recommendation", tags=["reccomendation"])
 
-def create_prompt(data_preferences: list[dict], meeting_type) -> str:
-    AGENT_SYSTEM_PROMPT = ""
-
-    for user in data_preferences:
-        
-        user_likes = ", ".join(user.preferences.genre_like if user.preferences.genre_likes != [] else "all")
-        user_dislike = ", ".join(user.preferences.genre_dislike if user.preferences.genre_dislike != [] else "none")
-        time_limit = "minuts, ".join(str(user.preferences.time) if user.preferences.time != [] else "doesn't matter")
-
-        user_prompt = f"user: {user.user_name} likes genres {user_likes} and dislikes genres {user_dislike} would prefer movie with length {time_limit}"
-        AGENT_SYSTEM_PROMPT += user_prompt
-    
-    AGENT_SYSTEM_PROMPT += f"users are having a meeting that is {meeting_type}"
-
-    return AGENT_SYSTEM_PROMPT
-
-
 @router.post("/{group_id}")
-async def get_recommendation(meta_data: Data) -> dict:
+async def get_recommendation(meta_data: Data, session=Depends(get_session)) -> dict:
 
     user_list = meta_data.users
     meeting_type = meta_data.meeting
+
+    users_seen = {
+        str(u.user_id): {
+            "allow_seen": u.preferences.allow_seen,
+            "user_name": u.user_name
+        } for u in user_list
+    }
+    recommended_time, min_time = calculate_recommended_time(user_list)
+    user_id_list = [u.user_id for u in user_list]
+    preferences_excluded = [
+        u.model_dump(exclude={"preferences": {"time", "allow_seen"}}) 
+        for u in user_list
+    ]
+
+    new_group = Session(session_id=uuid4(), 
+                          recommended_runtime=recommended_time,
+                          min_runtime=min_time,
+                          occasion=meeting_type,
+                          allow_seen= users_seen,
+                          preferences=preferences_excluded,
+                          users_in_session=user_id_list)
+
+    session.add(new_group)
+    session.commit()
 
     AGENT_USER_PROMPT = create_prompt(data_preferences=user_list, meeting_type=meeting_type)
     
