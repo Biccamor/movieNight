@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from engine.llm_engine import llm_response
 from schemas import Data
-from database.init import Session
-from database.main import get_session
+from database.database_setup import Session
+from database.main_db import get_session
 from uuid import uuid4
 from recommendation_uttils import create_prompt, calculate_recommended_time
 
