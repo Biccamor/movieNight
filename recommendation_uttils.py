@@ -6,11 +6,11 @@ def create_prompt(data_preferences: User, meeting_type: str) -> str:
 
     for user in data_preferences:
         
-        likes = ", ".join(user.preferences.genre_likes if user.preferences.genre_likes != [] else "all")
-        dislikes = ", ".join(user.preferences.genre_dislike if user.preferences.genre_dislike != [] else "none")
-        time_limit = user.preferences.time
+        vibes = ", ".join(user.preferences.vibes if user.preferences.hard_nos != [] else "all")
+        hard_nos = ", ".join(user.preferences.genre_dislike if user.preferences.genre_dislike != [] else "none")
+        time_limit = user.preferences.max_runtime
 
-        user_prompt = f"user: {user.user_name} likes genres {likes} and dislikes genres {dislikes} would prefer movie  maximum with length {time_limit}"
+        user_prompt = f"user: {user.user_name} wants vibes {vibes} and DEFINETLY DOESNT WANT {hard_nos} "
         AGENT_SYSTEM_PROMPT += user_prompt
     
     AGENT_SYSTEM_PROMPT += f"users are having a meeting that is {meeting_type}"
@@ -19,7 +19,7 @@ def create_prompt(data_preferences: User, meeting_type: str) -> str:
 
 def calculate_recommended_time(users: list[User]) -> tuple[int, int]:
     
-    times = [u.preferences.time for u in users]
+    times = [u.preferences.max_runtime for u in users]
 
     if not times: 
         return(90,120)

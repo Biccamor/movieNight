@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Self, List, Literal, Optional
 
 from pydantic import BaseModel, Field, EmailStr, model_validator
 from uuid import uuid4, UUID
@@ -12,21 +12,35 @@ genre_dislike: [kobiety, mozg], time: [30 sekund] } ]
 """
 
 
-class Preferences(BaseModel):
-    genre_likes: list[str]
-    genre_dislikes: list[str]
-    allow_seen: bool = Field(default=False)
-    time: int
+class SessionPreferences(BaseModel):
 
-class User(BaseModel):
+    vibe: Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS"] = "PIZZA_CHILL"
+    hard_nos: List[Literal["SLOW_BURN", "GORE", "SAD_ENDING", "KIDS_STUFF"]] = Field(default_factory=list)
+    max_runtime: int = Field(default=120, ge=30, le=240)
+    allow_seen: bool = False
+
+# 2. Użytkownik wewnątrz sesji
+class SessionUser(BaseModel):
     user_id: UUID
     user_name: str
-    preferences: Preferences
+    personal_vibe: Optional[SessionPreferences] = None
 
-class Data(BaseModel):
-    meeting: str
-    id: UUID
-    users: list[User]
+#
+class MovieSession(BaseModel):
+    session_id: UUID = Field(default_factory=uuid4)
+    invite_code: str  # Np. "XJ79B" - do wejścia przez kod/QR
+    
+    meeting_type: Literal["RANDKA", "EKIPA", "RODZINA", "SOLO"] = "EKIPA"
+    
+    is_active: bool = True
+    users: List[SessionUser] = Field(default_factory=list)
+    
+    final_preferences: Optional[SessionPreferences] = None
+
+# 4. To co Frontend wysyła, żeby STWORZYĆ sesję
+class CreateSessionRequest(BaseModel):
+    host_id: UUID
+    meeting_type: Literal["RANDKA", "EKIPA", "RODZINA", "SOLO"]
 
 class Register(BaseModel):
     email: EmailStr
