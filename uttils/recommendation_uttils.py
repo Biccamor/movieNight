@@ -1,13 +1,13 @@
-from schemas import User
+from schemas import SessionUser
 import numpy as np
 
-def create_prompt(data_preferences: User, meeting_type: str) -> str:
+def create_prompt(data_preferences: SessionUser, meeting_type: str) -> str:
     AGENT_SYSTEM_PROMPT = ""
 
     for user in data_preferences:
         
-        vibes = ", ".join(user.preferences.vibes if user.preferences.hard_nos != [] else "all")
-        hard_nos = ", ".join(user.preferences.genre_dislike if user.preferences.genre_dislike != [] else "none")
+        vibes = ", ".join(user.preferences.vibes if user.preferences.vibes != [] else "all")
+        hard_nos = ", ".join(user.preferences.hard_nos if user.preferences.hard_nos != [] else "none")
         time_limit = user.preferences.max_runtime
 
         user_prompt = f"user: {user.user_name} wants vibes {vibes} and DEFINETLY DOESNT WANT {hard_nos} "
@@ -17,7 +17,7 @@ def create_prompt(data_preferences: User, meeting_type: str) -> str:
 
     return AGENT_SYSTEM_PROMPT
 
-def calculate_recommended_time(users: list[User]) -> tuple[int, int]:
+def calculate_recommended_time(users: list[SessionUser]) -> tuple[int, int]:
     
     times = [u.preferences.max_runtime for u in users]
 

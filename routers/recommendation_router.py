@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from engine.llm_engine import llm_response
-from schemas import Data
+from schemas import MovieSession
 from database.database_setup import Session
 from database.main_db import get_session
 from uuid import uuid4
@@ -9,7 +9,7 @@ from recommendation_uttils import create_prompt, calculate_recommended_time
 router = APIRouter(prefix="/recommendation", tags=["reccomendation"])
 
 @router.post("/{group_id}")
-async def get_recommendation(meta_data: Data, session=Depends(get_session)) -> dict:
+async def get_recommendation(meta_data: MovieSession, session=Depends(get_session)) -> dict:
 
     user_list = meta_data.users
     meeting_type = meta_data.meeting
