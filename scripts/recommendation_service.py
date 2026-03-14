@@ -1,9 +1,8 @@
 from fastapi import Depends
 from schemas import MovieSession
-from database.database_setup import Session
+from database.database_setup import Room_Session
 from database.main_db import get_session
 from uuid import uuid4
-from schemas import SessionUser
 import numpy as np
 from engine.vector import create_vector, get_recoms
 
@@ -32,7 +31,7 @@ class RecomService:
 
         AGENT_USER_PROMPT = self.create_prompt()
         self.vector = create_vector(AGENT_USER_PROMPT)
-        new_group = Session(session_id=uuid4(), 
+        new_group = Room_Session(session_id=uuid4(), 
                             recommended_runtime=recommended_time,
                             min_runtime=min_time,
                             occasion=self.meeting_type,
