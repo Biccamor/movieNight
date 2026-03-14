@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from routers.recommendation import router as recommendation_router
-from routers.auth import router as auth_router
+from routers.recommendation_router import router as recommendation_router
+from routers.auth_router import router as auth_router
 
 app = FastAPI()
 app.include_router(recommendation_router)

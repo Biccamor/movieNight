@@ -16,7 +16,7 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True, index=True)
     hash_password: str
 
-    user_taste: list[float] | None = Field(sa_column=Column(Vector(768)), default=None)
+    user_taste: list[float] | None = Field(sa_column=Column(Vector(1024)), default=None)
 
 class Movies(SQLModel, table=True):
 
@@ -31,7 +31,7 @@ class Movies(SQLModel, table=True):
     runtime: int | None = Field(default=None, index=True)
 
     #TODO in future change Vector to 1536 (OPENAI API)
-    embedding: list[float] | None = Field(sa_column=Column(Vector(768), default=None))
+    embedding: list[float] | None = Field(sa_column=Column(Vector(1024), default=None))
 
 class Session(SQLModel,table=True):
 
@@ -47,7 +47,7 @@ class Session(SQLModel,table=True):
     created_at: date | None = Field(default_factory=date.today)
 
     users_in_session: list[UUID] = Field(default_factory=list, sa_column=Column(JSON))
-    embedding_preferences: list[float] | None = Field(sa_column=Column(Vector(768)), default=None)
+    embedding_preferences: list[float] | None = Field(sa_column=Column(Vector(1024)), default=None)
 
 
 class Rating(SQLModel, table=True):

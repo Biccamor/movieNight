@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel
-from main import engine
+from database.main_db import engine
 def reset_db():
     print("Niszczenie starych tabel...")
     SQLModel.metadata.drop_all(engine)
