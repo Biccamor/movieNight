@@ -1,4 +1,3 @@
-from scripts.recommendation_service import RecomService
 from FlagEmbedding import BGEM3FlagModel
 
 model = BGEM3FlagModel('BAAI/bge-m3',  
@@ -10,8 +9,10 @@ def create_vector(prompt:str):
                             batch_size=20, 
                             max_length=512,
                             normalize_embedding=True
-                            )['dense_vecs'].tolist()
+                            )['dense_vecs']
+    
+    embedding_list = embedding[0].tolist()
     return embedding
 
-def get_recoms(embedding, limit: int = 5) -> list:
+def get_recoms(embedding, limit: int = 5) -> list:  
     ...

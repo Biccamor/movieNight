@@ -12,7 +12,7 @@ class User(SQLModel, table=True):
         email - unique
         hash_password
     """
-    __tablename__ = "app_user"
+    __tablename__ = "app_user" # type: ignore
     __table_args__ = (UniqueConstraint("email"),)
     user_id: UUID = Field(default_factory=uuid4, primary_key=True)
     email: str = Field(unique=True, index=True)
@@ -22,7 +22,7 @@ class User(SQLModel, table=True):
 
 class Movie(SQLModel, table=True):
 
-    __tablename__= "movie"
+    __tablename__= "movie" # type: ignore
     movie_id: UUID = Field(default_factory=uuid4, primary_key=True)
     tmdb_id: int = Field(unique=True, index=True)
 
@@ -36,7 +36,7 @@ class Movie(SQLModel, table=True):
     embedding: list[float] | None = Field(sa_column=Column(Vector(1024), default=None))
 
 class Room_Session(SQLModel,table=True):
-    __tablename__ = "room_session"
+    __tablename__ = "room_session" # type: ignore
     session_id: UUID = Field(default_factory=uuid4, primary_key=True)
     
     is_active: bool = Field(default=True)
@@ -54,7 +54,7 @@ class Room_Session(SQLModel,table=True):
 
 class Rating(SQLModel, table=True):
 
-    __tablename__ = "rating"
+    __tablename__ = "rating" # type: ignore
     rating_id: UUID = Field(default_factory=uuid4, primary_key=True)
     
     user_id: UUID = Field(foreign_key="app_user.user_id", index=True)
