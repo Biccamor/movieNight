@@ -32,6 +32,8 @@ class Movie(SQLModel, table=True):
     poster_path: str| None = Field(default=None)
     release_date: date | None = Field(default=None)
     runtime: int | None = Field(default=None, index=True)
+    rating: int = Field(default=None, index=True)
+    tags: list[str] = Field(default_factory=list, sa_column=Column(JSONB))
 
     embedding: list[float] | None = Field(sa_column=Column(Vector(1024), default=None))
 

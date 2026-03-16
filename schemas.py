@@ -43,7 +43,7 @@ class Register(BaseModel):
         if self.password == self.confirm_password:
             return self
     
-        return ValueError("Passwords don't match") 
+        raise ValueError("Passwords don't match")
 
 class Login(BaseModel):
     email: EmailStr

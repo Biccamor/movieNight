@@ -1,10 +1,10 @@
 from sqlmodel import create_engine, SQLModel, Session, text
-from database.database_setup import User, Movie, Rating, Room_Session
+
 engine = create_engine("postgresql://my_user:my_pwd@localhost:5432/my_db", echo=True)
 
 def create_tables():    
     with Session(engine) as session:
-        session.exec(text("CREATE EXTENSION IF NOT EXISTS VECTOR"))
+        session.exec(text("CREATE EXTENSION IF NOT EXISTS VECTOR")) # type: ignore
         session.commit()
     SQLModel.metadata.create_all(engine)    
     with Session(engine) as session:
@@ -12,7 +12,7 @@ def create_tables():
         session.exec(text(" CREATE INDEX IF NOT EXISTS hnsw_movie" \
                         " ON movie USING hnsw "
                         " (embedding vector_cosine_ops)" \
-                        " WITH (m = 16, ef_construction = 128); "))
+                        " WITH (m = 16, ef_construction = 128); ")) # type: ignore
         session.commit()
 
 
