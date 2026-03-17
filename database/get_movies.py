@@ -2,16 +2,41 @@ import requests
 from dotenv import dotenv_values
 from sqlmodel import Session
 from database.main_db import engine
-from engine.vector import create_vector
+from engine.vector import create_vector, model
 from database.database_setup import Movie
 import time
-
+import concurrent.futures
+from requests.exceptions import RequestException
+from sqlalchemy.dialects.postgresql import insert
+from datetime import date
 BEARER_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0MjQ3ZWUxM2E4NDg4NzQ4YjhjOWYwYjJiY2E3NzI2NCIsIm5iZiI6MTc3MjkwNzI5Ny4wNjA5OTk5LCJzdWIiOiI2OWFjNmIyMWIzYWU1Y2U0YTU3MTcxNDkiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oywsdyuQ0pYl8w4O7d6ouRKOFrWCXwc1o3BOYNTYUJY"
 headers = {
     "accept": "application/json",
     "Authorization": f"Bearer {BEARER_TOKEN}"
 }
 PAGES = 100
+
+http = requests.Session()
+http.headers.update(headers)
+
+def fetch_details(movie):
+    """Pomocnicza funkcja do pobierania detali jednego filmu"""
+    movie_url = f"https://api.themoviedb.org/3/movie/{movie['id']}?append_to_response=keywords"
+    try:
+        response = http.get(movie_url, timeout=10) 
+        
+        if response.status_code == 429:
+            print(f"Rate limit (429) dla {movie['id']}.")
+            time.sleep(2)
+            return fetch_details(movie)
+            
+        return response.json()
+
+    except (RequestException, Exception) as e:
+        print(f" Błąd sieci dla filmu {movie['id']}: {e}.")
+        time.sleep(3)
+        return fetch_details(movie) 
+    
 
 def create_movie_prompt(genres: list, movie_title: str, desc: str, keywords: list):
     genres_str = ", ".join(genres)
@@ -37,68 +62,57 @@ def add_movies():
 
     with Session(engine) as session:
         movie_batch = []
-        for page in range(1, PAGES+1): 
+        for page in range(43, PAGES+1): 
             print(f"CURRENT PAGE: {page}")
             url = f"https://api.themoviedb.org/3/movie/popular?language=en-US&page={page}"
+            response = http.get(url).json()
+            movies_list = response["results"]
 
-            response = requests.get(url, headers=headers)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+                all_details = list(executor.map(fetch_details, movies_list))
 
-            if response.status_code == 429: # jezeli api wywali ze za duzo requestow (co raczej sie nie powinno stac)
-                time.sleep(1.1)               # to daj sleepa na sekunde zeby sie zresetowalo napewno
+            page_prompts = []
+            page_movies_data = []
 
-            movies_list = response.json()["results"]
-            
-            for movie in movies_list:
-                
-                # wchodzimy na konkretny film url by dostac inforamcje o runtimie i tagach/keywordach
-                movie_url = f"https://api.themoviedb.org/3/movie/{movie['id']}?append_to_response=keywords"
-                
-                detail_res = requests.get(movie_url, headers=headers).json()
-                
+            for i, detail_res in enumerate(all_details):
+                movie = movies_list[i]
                 runtime = detail_res.get("runtime", 0)
                 keywords_list = [k["name"] for k in detail_res.get("keywords", {}).get("keywords", [])]
+                genres_names = [genre_dict[g_id] for g_id in movie['genre_ids']]
+                
+                prompt = create_movie_prompt(genres_names, movie['title'], movie['overview'], keywords=keywords_list)
+                
+                page_prompts.append(prompt)
+                page_movies_data.append({
+                    "movie": movie, "runtime": runtime, "keywords": keywords_list, "genres": genres_names
+                })
 
-                title = movie['title']
-                desc = movie['overview']
-                rating = movie['vote_average']
-                relase_date = movie['release_date']
-                genres = movie['genre_ids']
-                poster_path = movie['poster_path']
-                genre_list = []
-                for genre_id in genres:
-                    genre_list.append(genre_dict[genre_id])
+            embeddings = create_vector(page_prompts)
 
-                prompt = create_movie_prompt(genre_list, title, desc, keywords=keywords_list) 
-                embedding = create_vector(prompt)
+            for i, data in enumerate(page_movies_data):
+                m = data["movie"]
+                movie_batch.append(Movie(
+                    tmdb_id=m['id'], title=m['title'], description=m['overview'],
+                    genre=data["genres"], release_date=date.fromisoformat(m['release_date'])  if m['release_date'] else None , rating=m['vote_average'],
+                    embedding=embeddings[i], runtime=data["runtime"], tags=data["keywords"],
+                    poster_path=m['poster_path']
+                ))
 
-                movie_obj = Movie(
-                    tmdb_id=movie['id'],
-                    title = title,
-                    description= desc, 
-                    genre = genre_list, 
-                    release_date = relase_date,
-                    rating = rating,
-                    embedding= embedding,
-                    runtime=runtime,
-                    tags = keywords_list,
-                    poster_path=poster_path
-                    )
-
-                movie_batch.append(movie_obj)
-
-            if page % 5 or page == PAGES: # co 5 stron czyli co 100 filmow robimy wielkiego commita i resetuje batcha
+            if page % 3 == 0 or page == PAGES: 
                 try: 
-                    session.add_all(movie_batch)
+                    for movie_obj in movie_batch:
+                        # Zamieniamy obiekt na słownik danych
+                        data = movie_obj.model_dump(exclude={"movie_id"})
+                        
+                        stmt = insert(Movie).values(data).on_conflict_do_nothing(index_elements=['tmdb_id'])
+                        session.exec(stmt)
+                    
                     session.commit()
-                    print(f"BATCH for pages {page}")
+                    print(f"BATCH SAVED up to page {page}")
+                    movie_batch = []
                 except Exception as e:
-                    session.rollback()  
-                    print(f"ERROR: {e}")
-                    print(movie_batch)
+                    session.rollback()
+                    print(f"ERROR during commit: {e}")
+                    movie_batch = []
 
-                movie_batch = []
-            time.sleep(0.1)
-
-
-if __name__ == "__main__":
-    add_movies()
+add_movies()

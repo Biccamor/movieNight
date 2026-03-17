@@ -1,6 +1,11 @@
 from sqlmodel import create_engine, SQLModel, Session, text
 
-engine = create_engine("postgresql://my_user:my_pwd@localhost:5432/my_db", echo=True)
+engine = create_engine("postgresql://my_user:my_pwd@localhost:5432/my_db",
+                        echo=True,
+                        pool_size=20,          
+                        max_overflow=10,      
+                        pool_timeout=60,      
+                        pool_recycle=1800,)
 
 def create_tables():    
     with Session(engine) as session:

@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 model = BGEM3FlagModel('BAAI/bge-m3',  
                        use_fp16=True) # Setting use_fp16 to True speeds up computation with a slight performance degradation
 
-def create_vector(prompt:str):
+def create_vector(prompt:list | str):
     
     embedding = model.encode(prompt, 
                             batch_size=20, 
@@ -32,6 +32,3 @@ def hybrid_search(query_vector: list[float],max_runtime: int,  rating_weight: fl
         )
         
         return session.exec(statement).all()
-
-if __name__ == "__main__":
-    print(create_vector(prompt="Ala ma fajnego kota"))
