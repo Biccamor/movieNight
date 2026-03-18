@@ -6,6 +6,11 @@ from scripts.recommendation_service import RecomService
 router = APIRouter(prefix="/recommendation", tags=["reccomendation"])
 
 @router.post("/{group_id}")
-async def get_recommendation(meta_data: MovieSession, session=Depends(get_session)) -> dict:
+async def get_recommendation(meta_data: MovieSession, session=Depends(get_session)):
 
-    return RecomService.get_recommend(meta_data, session)
+    recom_service = RecomService(meta_data, session)
+
+    recommendation_movies = recom_service._main()
+
+    return recommendation_movies
+    

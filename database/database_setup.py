@@ -45,9 +45,9 @@ class Room_Session(SQLModel,table=True):
     recomended_runtime: int | None = Field(default=None, index=True)
     min_runtime: int | None = Field(default=None, index=True)
     occasion: str | None = Field(default=None, index=True)
-    allow_seen: dict[str, bool] = Field(default_factory=dict, sa_column=Column(JSONB))
+    allow_seen: dict = Field(default_factory=dict, sa_column=Column(JSONB))
 
-    preferences: dict | None= Field(default_factory=dict, sa_column=Column(JSONB))
+    preferences: list | None= Field(default_factory=list, sa_column=Column(JSONB))
     created_at: date | None = Field(default_factory=date.today)
 
     users_in_session: list[UUID] = Field(default_factory=list, sa_column=Column(JSONB))

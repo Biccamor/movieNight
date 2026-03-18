@@ -20,7 +20,7 @@ def hybrid_search(query_vector: list[float],max_runtime: int,  rating_weight: fl
     
     with Session(engine) as session:
 
-        rating_penalty = (10.0 - Movie.rating) / 10.0
+        rating_penalty = (10.0 - Movie.rating) / 10.0 
         # tym mniejszy hybrid_score tym lepiej, tym gorsza ocena tym dodatkowo "dalej" od idealnego filmu 0.0
         hybrid_score = (Movie.embedding.cosine_distance(query_vector) + (rating_weight * rating_penalty)).label("score") # type: ignore
 
