@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException,status, Depends
 from schemas import Register, Login
-from security import hash_password, verify_password, signJWT, check_if_email_exists
+from scripts.security import hash_password, verify_password, signJWT
+from uttils.uttils import check_if_email_exists
 from sqlmodel import select
 from database.main_db import get_session
 from database.database_setup import User

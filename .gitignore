@@ -1,8 +1,8 @@
-/movieNight
+movieNight/
 /engine/__pycache__
 **.env
-/__pycache__
-/.vscode
+__pycache__/
+vscode/
 **/.vscode
 **/__pycache__/
 *.py[cod]

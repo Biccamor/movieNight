@@ -3,8 +3,8 @@ from argon2.exceptions import VerifyMismatchError
 import jwt
 from schemas import Settings
 import datetime
-from fastapi import select, Session
-from database.database_setup import User
+from database.database_setup import User, Session
+from sqlmodel import select
 
 setting = Settings()
 ph = PasswordHasher()
@@ -52,10 +52,3 @@ def decodeJWT(token: str) -> dict:
     except jwt.InvalidTokenError:
         print("Nieprawidłowy token!")
         return {}
-    
-def check_if_email_exists(email: str, session: Session) -> bool:
-
-    statement = select(User).where(User.email == email)
-    existing_user = session.exec(statement).first()
-    return existing_user == None
-    
