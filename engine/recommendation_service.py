@@ -1,5 +1,5 @@
 from fastapi import Depends
-from schemas import MovieSession
+from schemas.schemas import MovieSession
 from database.database_setup import Room_Session
 from database.main_db import get_session
 from uuid import uuid4
@@ -24,9 +24,9 @@ class RecomService:
             } for u in self.user_list
         }
         self.recommended_time, self.min_time = self._get_time()
-        user_id_list = [u.user_id for u in self.user_list]
+        user_id_list = [str(u.user_id) for u in self.user_list]
         preferences_excluded = [
-            u.model_dump(exclude={"preferences": {"time", "allow_seen"}}) 
+            u.model_dump(exclude={"preferences": {"time", "allow_seen"}}, mode='json') 
             for u in self.user_list
         ]
 
@@ -79,8 +79,10 @@ class RecomService:
         return (recommended_time, min_time)
     
     def _main(self):
+
+        self._add_db()
         
-        recoms = hybrid_search(self.vector, max(self.recommended_time, self.min_time),
+        recoms = hybrid_search(self.vector, max(self.recommended_time, self.min_time), self.session,
                                rating_weight=0.25, limit_movies=5)
 
         return recoms 

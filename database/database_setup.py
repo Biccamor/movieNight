@@ -50,7 +50,7 @@ class Room_Session(SQLModel,table=True):
     preferences: list | None= Field(default_factory=list, sa_column=Column(JSONB))
     created_at: date | None = Field(default_factory=date.today)
 
-    users_in_session: list[UUID] = Field(default_factory=list, sa_column=Column(JSONB))
+    users_in_session: list[str] = Field(default_factory=list, sa_column=Column(JSONB))
     embedding_preferences: list[float] | None = Field(sa_column=Column(Vector(1024)), default=None)
 
 
