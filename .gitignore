@@ -7,3 +7,6 @@ vscode/
 **/__pycache__/
 *.py[cod]
 *$py.class
+postgres
+__pycache__
+.vscode
