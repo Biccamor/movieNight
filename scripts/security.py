@@ -3,8 +3,6 @@ from argon2.exceptions import VerifyMismatchError
 import jwt
 from schemas.schemas import Settings
 import datetime
-from dotenv import load_dotenv
-import os 
 
 setting = Settings() # type: ignore
 ph = PasswordHasher()

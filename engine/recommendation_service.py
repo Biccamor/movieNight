@@ -1,7 +1,6 @@
 from fastapi import Depends
 from schemas.schemas import MovieSession
 from database.database_setup import Room_Session
-from database.main_db import get_session
 from uuid import uuid4
 import numpy as np
 from engine.vector import create_vector, hybrid_search
