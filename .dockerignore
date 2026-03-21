@@ -1,0 +1,17 @@
+.env
+
+postgres/
+postgres_data/
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+.vscode/
+.idea/
+
+venv/
+env/
+.venv/
+movieNight/
