@@ -1,12 +1,10 @@
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 import jwt
-from schemas import Settings
+from schemas.schemas import Settings
 import datetime
-from database.database_setup import User, Session
-from sqlmodel import select
 
-setting = Settings()
+setting = Settings() # type: ignore
 ph = PasswordHasher()
 
 def hash_password(password: str):
@@ -35,8 +33,8 @@ def token_response(token: str):
 
 def signJWT(user_id: str) -> dict:
     payload = {
-        "user_id": user_id,
-        "exp": datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=setting.access_token_expire)
+        "user_id": str(user_id),
+        "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=setting.access_token_expire)
     }
     token = jwt.encode(payload, setting.secret_key, algorithm=setting.algorithm)
 

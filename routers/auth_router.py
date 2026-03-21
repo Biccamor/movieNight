@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException,status, Depends
-from schemas import Register, Login
+from schemas.schemas import Register, Login
 from scripts.security import hash_password, verify_password, signJWT
-from uttils.uttils import check_if_email_exists
+from scripts.uttils import check_if_email_exists
 from sqlmodel import select
 from database.main_db import get_session
 from database.database_setup import User
@@ -14,19 +14,19 @@ router = APIRouter(prefix="/auth", tags=['auth'])
 @router.post("/register")
 async def create_account(data: Register, session = Depends(get_session)):
     
-    if check_if_email_exists(data.email, session=session) == True:
+    if check_if_email_exists(data.email, session):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Użytkownik o takim adresie e-mail już istnieje."
         )
     
     hashed_password = hash_password(data.password)
-    new_user = User(user_id = str(uuid4()), email = data.email, hash_password=hashed_password)
+    new_user = User(user_id = uuid4(), email = data.email, hash_password=hashed_password)
     
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
-    return {"message": "Account created successfully", "user_id": new_user.id}
+    return {"message": "Account created successfully", "user_id": new_user.user_id}
 
 
 @router.post("/login")
@@ -52,5 +52,5 @@ async def login_account(data: Login, session = Depends(get_session)):
     
     token = signJWT(get_user.user_id)
 
-    return {"message": "User {data.mail} logged in", "access_token": token["access_token"], 
+    return {"message": f"User {data.email} logged in", "access_token": token["access_token"], 
             "token_type": "bearer",  "user_id": get_user.user_id}

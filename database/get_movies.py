@@ -15,7 +15,7 @@ headers = {
     "Authorization": f"Bearer {BEARER_TOKEN}"
 }
 PAGES = 100
-
+TMDB_API = "4247ee13a8488748b8c9f0b2bca77264"
 http = requests.Session()
 http.headers.update(headers)
 
