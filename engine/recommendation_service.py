@@ -1,10 +1,9 @@
-from fastapi import Depends
 from schemas.schemas import MovieSession
 from database.database_setup import Room_Session
 from uuid import uuid4
 import numpy as np
-from engine.vector import create_vector, hybrid_search
-
+from engine.vector import create_vector
+from engine.llm_decider import decide
 class RecomService:
     
     def __init__(self, meta_data: MovieSession, session):
@@ -29,8 +28,8 @@ class RecomService:
             for u in self.user_list
         ]
 
-        AGENT_USER_PROMPT = self._create_prompt()
-        self.vector = create_vector(AGENT_USER_PROMPT)
+        self.AGENT_USER_PROMPT = self._create_prompt()
+        self.vector = create_vector(self.AGENT_USER_PROMPT)
         new_group = Room_Session(session_id=uuid4(), 
                             recomended_runtime=self.recommended_time,
                             min_runtime=self.min_time,
@@ -81,7 +80,9 @@ class RecomService:
 
         self._add_db()
         
-        recoms = hybrid_search(self.vector, max(self.recommended_time, self.min_time), self.session,
-                               rating_weight=0.25, limit_movies=5)
+        self.AGENT_USER_PROMPT = "Reccomend a mvoie for a group of users containg: " + self.AGENT_USER_PROMPT
+        #recoms = hybrid_search(self.vector, max(self.recommended_time, self.min_time), self.session,
+        #                       rating_weight=0.25, limit_movies=5)
+        recoms = decide(self.session, self.vector, max(self.recommended_time, self.min_time), self.AGENT_USER_PROMPT)
 
         return recoms 

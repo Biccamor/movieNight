@@ -11,25 +11,37 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    #  - ./postgres/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+       -  "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
   app:
     build: .
     container_name: app
     env_file:
       - .env
+    environment:
+        OLLAMA_BASE_URL: https://ollama:11434
     ports:
       - "8010:8010"
     depends_on:
       db:
         condition: service_healthy
+      ollama:
+        condition: service_started
     
     restart: unless-stopped
 
 volumes:
   postgres_data:
+  ollama_data:
