@@ -1,6 +1,6 @@
 from ollama import chat
 from engine.prompts import AGENT_SYSTEM_PROMPT
-from vector import hybrid_search
+from engine.vector import hybrid_search
 from pydantic import BaseModel
 from enum import Enum
 

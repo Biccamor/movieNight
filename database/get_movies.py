@@ -1,42 +1,64 @@
 import requests
 from dotenv import dotenv_values
 from sqlmodel import Session
-from database.main_db import engine
-from engine.vector import create_vector, model
+from engine.vector import create_vector
 from database.database_setup import Movie
+import scripts.dependencies as d
 import time
 import concurrent.futures
 from requests.exceptions import RequestException
 from sqlalchemy.dialects.postgresql import insert
 from datetime import date
-BEARER_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0MjQ3ZWUxM2E4NDg4NzQ4YjhjOWYwYjJiY2E3NzI2NCIsIm5iZiI6MTc3MjkwNzI5Ny4wNjA5OTk5LCJzdWIiOiI2OWFjNmIyMWIzYWU1Y2U0YTU3MTcxNDkiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oywsdyuQ0pYl8w4O7d6ouRKOFrWCXwc1o3BOYNTYUJY"
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+DATABASE_URL_LOCAL = os.getenv("DATABASE_URL_LOCAL")
+BEARER_TOKEN = os.getenv("BEARER_TOKEN")
+TMDB_API = os.getenv("TMBD_API")
+engine = create_engine(DATABASE_URL_LOCAL, #type: ignore
+                        echo=True,
+                        pool_size=20,          
+                        max_overflow=10,      
+                        pool_timeout=60,      
+                        pool_recycle=1800)
 headers = {
     "accept": "application/json",
     "Authorization": f"Bearer {BEARER_TOKEN}"
 }
-PAGES = 100
-TMDB_API = "4247ee13a8488748b8c9f0b2bca77264"
+d.load_model()  
+
+PAGES = 200
+MAX_RETRIES = 5
+
 http = requests.Session()
 http.headers.update(headers)
 
-def fetch_details(movie):
-    """Pomocnicza funkcja do pobierania detali jednego filmu"""
-    movie_url = f"https://api.themoviedb.org/3/movie/{movie['id']}?append_to_response=keywords"
-    try:
-        response = http.get(movie_url, timeout=10) 
-        
-        if response.status_code == 429:
-            print(f"Rate limit (429) dla {movie['id']}.")
-            time.sleep(2)
-            return fetch_details(movie)
-            
-        return response.json()
-
-    except (RequestException, Exception) as e:
-        print(f" Błąd sieci dla filmu {movie['id']}: {e}.")
-        time.sleep(3)
-        return fetch_details(movie) 
+def fetch_details(movie_id: int) -> dict:
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=keywords"
     
+    for attempt in range(MAX_RETRIES):
+        try:
+            response = http.get(url, timeout=10)
+            
+            if response.status_code == 429:
+                wait = 2 ** attempt  # 1, 2, 4, 8, 16 sekund
+                print(f"Rate limit dla {movie_id}, czekam {wait}s")
+                time.sleep(wait)
+                continue
+                
+            if response.status_code == 200:
+                return response.json()
+                
+            print(f"Status {response.status_code} dla {movie_id}")
+            
+        except Exception as e:
+            wait = 2 ** attempt
+            print(f"Błąd sieci dla {movie_id}: {e}, czekam {wait}s")
+            time.sleep(wait)
+    
+    print(f"Pomijam film {movie_id} po {MAX_RETRIES} próbach")
+    return {}  # pusty dict zamiast wiecznej rekurencji
 
 def create_movie_prompt(genres: list, movie_title: str, desc: str, keywords: list):
     genres_str = ", ".join(genres)
@@ -57,62 +79,76 @@ def get_genres() -> dict[str, str]:
         genres_dict.update({genre['id']:  genre['name']})
     return genres_dict
 
-def add_movies():
+def save_batch(session: Session, movie_batch: list) -> None:
+    try:
+        for movie_obj in movie_batch:
+            data = movie_obj.model_dump(exclude={"movie_id"})
+            stmt = insert(Movie).values(data).on_conflict_do_nothing(index_elements=['tmdb_id'])
+            session.exec(stmt)
+        session.commit()
+        print(f"Zapisano {len(movie_batch)} filmów")
+    except Exception as e:
+        session.rollback()
+        print(f"Błąd zapisu: {e}")
+def add_movies(start_page: int = 1):
     genre_dict = get_genres()
 
     with Session(engine) as session:
         movie_batch = []
-        for page in range(43, PAGES+1): 
-            print(f"CURRENT PAGE: {page}")
-            url = f"https://api.themoviedb.org/3/movie/popular?language=en-US&page={page}"
-            response = http.get(url).json()
-            movies_list = response["results"]
+        
+        for page in range(start_page, PAGES + 1):
+            print(f"Strona {page}/{PAGES}")
+            
+            try:
+                url = f"https://api.themoviedb.org/3/movie/popular?language=en-US&page={page}"
+                movies_list = http.get(url, timeout=10).json().get("results", [])
+            except Exception as e:
+                print(f"Błąd pobierania strony {page}: {e}, pomijam")
+                continue
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-                all_details = list(executor.map(fetch_details, movies_list))
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                all_details = list(executor.map(
+                    lambda m: fetch_details(m['id']), movies_list
+                ))
 
             page_prompts = []
             page_movies_data = []
 
-            for i, detail_res in enumerate(all_details):
-                movie = movies_list[i]
-                runtime = detail_res.get("runtime", 0)
-                keywords_list = [k["name"] for k in detail_res.get("keywords", {}).get("keywords", [])]
-                genres_names = [genre_dict[g_id] for g_id in movie['genre_ids']]
+            for movie, details in zip(movies_list, all_details):
+                if not details:  # pominięty film
+                    continue
+                    
+                runtime = details.get("runtime", 0)
+                keywords = [k["name"] for k in details.get("keywords", {}).get("keywords", [])]
+                genres = [genre_dict.get(g_id, "") for g_id in movie['genre_ids']]
                 
-                prompt = create_movie_prompt(genres_names, movie['title'], movie['overview'], keywords=keywords_list)
-                
-                page_prompts.append(prompt)
+                page_prompts.append(create_movie_prompt(genres, movie['title'], movie['overview'], keywords))
                 page_movies_data.append({
-                    "movie": movie, "runtime": runtime, "keywords": keywords_list, "genres": genres_names
+                    "movie": movie, "runtime": runtime, "keywords": keywords, "genres": genres
                 })
+
+            if not page_prompts:
+                continue
 
             embeddings = create_vector(page_prompts)
 
-            for i, data in enumerate(page_movies_data):
+            for data, embedding in zip(page_movies_data, embeddings):
                 m = data["movie"]
                 movie_batch.append(Movie(
-                    tmdb_id=m['id'], title=m['title'], description=m['overview'],
-                    genre=data["genres"], release_date=date.fromisoformat(m['release_date'])  if m['release_date'] else None , rating=m['vote_average'],
-                    embedding=embeddings[i], runtime=data["runtime"], tags=data["keywords"],
-                    poster_path=m['poster_path']
+                    tmdb_id=m['id'],
+                    title=m['title'],
+                    description=m['overview'],
+                    genre=data["genres"],
+                    release_date=date.fromisoformat(m['release_date']) if m.get('release_date') else None,
+                    rating=m['vote_average'],
+                    embedding=embedding,
+                    runtime=data["runtime"],
+                    tags=data["keywords"],
+                    poster_path=m.get('poster_path')
                 ))
 
-            if page % 3 == 0 or page == PAGES: 
-                try: 
-                    for movie_obj in movie_batch:
-                        # Zamieniamy obiekt na słownik danych
-                        data = movie_obj.model_dump(exclude={"movie_id"})
-                        
-                        stmt = insert(Movie).values(data).on_conflict_do_nothing(index_elements=['tmdb_id'])
-                        session.exec(stmt)
-                    
-                    session.commit()
-                    print(f"BATCH SAVED up to page {page}")
-                    movie_batch = []
-                except Exception as e:
-                    session.rollback()
-                    print(f"ERROR during commit: {e}")
-                    movie_batch = []
+            if page % 3 == 0 or page == PAGES:
+                save_batch(session, movie_batch)
+                movie_batch = []
 
-add_movies()
+add_movies(start_page=1)

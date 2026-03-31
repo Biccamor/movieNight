@@ -3,10 +3,27 @@ from routers.recommendation_router import router as recommendation_router
 from routers.auth_router import router as auth_router
 import time
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+import scripts.dependencies as d
+from database.main_db import create_tables
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        d.load_model()
+        d.load_db()
+        create_tables()
+        yield
+    finally:
+        pass
+
+
+
+app = FastAPI(lifespan=lifespan)
 app.include_router(recommendation_router)
 app.include_router(auth_router)
+
+
 
 origins = [
     "https://groupmovie.com",

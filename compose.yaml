@@ -24,14 +24,14 @@ services:
     ports:
        -  "11434:11434"
     volumes:
-      - ollama_data:/root/.ollama
+      - C:/Users/fabia/.ollama:/root/.ollama
   app:
     build: .
     container_name: app
     env_file:
       - .env
     environment:
-        OLLAMA_BASE_URL: https://ollama:11434
+        OLLAMA_BASE_URL: http://ollama:11434
     ports:
       - "8010:8010"
     depends_on:
@@ -44,4 +44,3 @@ services:
 
 volumes:
   postgres_data:
-  ollama_data:

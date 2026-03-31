@@ -1,16 +1,16 @@
 from sqlmodel import SQLModel, select, Session, func
-from database.main_db import engine, create_tables
+from database.main_db import create_tables
 from database.database_setup import Movie
-
+import scripts.dependencies as d 
 def reset_db():
     print("Niszczenie starych tabel...")
-    SQLModel.metadata.drop_all(engine)
+    SQLModel.metadata.drop_all(d.engine)
    
     print("Tworzenie nowych tabel...")
     create_tables()
 
 def check_if_empty():
-    with Session(engine) as session:
+    with Session(d.engine) as session:
         # Liczymy rekordy w tabeli Movie
         count = session.exec(select(func.count()).select_from(Movie)).one()
         if count == 0:
