@@ -2,10 +2,13 @@ from fastapi import FastAPI, Request
 from routers.recommendation_router import router as recommendation_router
 from routers.auth_router import router as auth_router
 import time
+import logging
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import scripts.dependencies as d
 from database.main_db import create_tables
+
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -14,6 +17,9 @@ async def lifespan(app: FastAPI):
         d.load_db()
         create_tables()
         yield
+    except Exception as e:
+        logger.exception(f"Startup failed: {e}")
+        raise
     finally:
         pass
 

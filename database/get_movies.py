@@ -1,6 +1,5 @@
 import requests
-from dotenv import dotenv_values
-from sqlmodel import Session
+from sqlmodel import Session, create_engine
 from engine.vector import create_vector
 from database.database_setup import Movie
 import scripts.dependencies as d
@@ -15,7 +14,7 @@ import os
 load_dotenv()
 DATABASE_URL_LOCAL = os.getenv("DATABASE_URL_LOCAL")
 BEARER_TOKEN = os.getenv("BEARER_TOKEN")
-TMDB_API = os.getenv("TMBD_API")
+TMDB_API = os.getenv("TMDB_API")
 engine = create_engine(DATABASE_URL_LOCAL, #type: ignore
                         echo=True,
                         pool_size=20,          

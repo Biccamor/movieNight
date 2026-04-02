@@ -1,11 +1,11 @@
 from sqlmodel import SQLModel, Session, text
 import scripts.dependencies as d 
-
+from database.database_setup import Movie, User, Room_Session, Rating
 def create_tables():    
     with Session(d.engine) as session:
         session.exec(text("CREATE EXTENSION IF NOT EXISTS VECTOR")) # type: ignore
         session.commit()
-    SQLModel.metadata.create_all(engine)    # type: ignore
+    SQLModel.metadata.create_all(d.engine)    # type: ignore
     with Session(d.engine) as session:
 
         session.exec(text(" CREATE INDEX IF NOT EXISTS hnsw_movie" \
