@@ -2,6 +2,4 @@ dodaj cross encodera
 
 dodaj filtracje po hard-nos
 
-napraw prompta
-
-przekazuj poster llm'owi
+wyjmuj sam poster i genre i je wyseitalj nie llm

@@ -7,18 +7,15 @@ Use the following JSON schema EXACTLY:
 {
   "thought": "Brief summary of how you combined preferences (in English).",
   "movie_title": "Polish title (Original title in parentheses)",
-  "poster_path": "poster_path of the movie exactly as provided",
   "genre": "genres of the movie exactly as provided",
   "reasoning_pl": "Personalized explanation in Polish for the group why this movie is perfect.",
   "extra_movies": [
     {
       "movie_title": "Polish title (Original title in parentheses)",
-      "poster_path": "poster_path exactly as provided",
       "genre": "genres exactly as provided"
     },
     {
       "movie_title": "Polish title (Original title in parentheses)",
-      "poster_path": "poster_path exactly as provided",
       "genre": "genres exactly as provided"
     }
   ]
@@ -43,18 +40,15 @@ Output:
 {
   "thought": "Finding a compromise between action and light comedy for a family party, avoiding mature content.",
   "movie_title": "Strażnicy Galaktyki (Guardians of the Galaxy)",
-  "poster_path": "/path/gotg.jpg",
   "genre": "action, sci-fi, comedy",
   "reasoning_pl": "Ten film to idealny kompromis! Oferuje świetną akcję dla Użytkownika 3, klimat Sci-Fi dla Użytkownika 1 i lekki humor dla Użytkownika 2. Brak drastycznych scen sprawia, że każdy będzie zadowolony.",
   "extra_movies": [
     {
       "movie_title": "Shrek (Shrek)",
-      "poster_path": "/path/shrek.jpg",
       "genre": "animation, comedy, family"
     },
     {
       "movie_title": "Wszystko wszędzie naraz (Everything Everywhere All at Once)",
-      "poster_path": "/path/eeaao.jpg",
       "genre": "sci-fi, comedy, drama"
     }
   ]
