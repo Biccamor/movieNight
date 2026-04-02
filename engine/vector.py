@@ -1,13 +1,9 @@
-from FlagEmbedding import BGEM3FlagModel
 from database.database_setup import Movie
 from sqlmodel import select
-
-model = BGEM3FlagModel('BAAI/bge-m3',  
-                       use_fp16=True) # Setting use_fp16 to True speeds up computation with a slight performance degradation
-
+import scripts.dependencies as d
 def create_vector(prompt:list | str):
     
-    embedding = model.encode(prompt, 
+    embedding = d.model.encode(prompt, 
                             batch_size=20, 
                             max_length=512
                             )['dense_vecs']
@@ -33,6 +29,7 @@ def hybrid_search(query_vector: list[float],max_runtime: int, session,  rating_w
     result =[]
 
     for row in db_search:
+        #print(row)
         result.append({
             "movie": str(row[0]),
             "score":  float(row[1])

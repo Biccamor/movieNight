@@ -1,6 +1,5 @@
-from sqlmodel import select, Session
-from database.database_setup import User, Room_Session
-from database.main_db import engine
+from sqlmodel import select
+from database.database_setup import User
 
 # TODO: sprawdz czy napewno dobry jest ten user
 
