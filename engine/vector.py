@@ -29,6 +29,7 @@ def hybrid_search(query_vector: list[float],max_runtime: int, session,  rating_w
     result =[]
 
     for row in db_search:
+        #print(row)
         result.append({
             "movie": str(row[0]),
             "score":  float(row[1])

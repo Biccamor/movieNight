@@ -2,7 +2,7 @@ from schemas.schemas import MovieSession
 from database.database_setup import Room_Session
 from uuid import uuid4
 import numpy as np
-from engine.vector import create_vector
+from engine.vector import create_vector, hybrid_search
 from engine.llm_decider import decide
 class RecomService:
     
