@@ -1,6 +1,6 @@
 from ollama import Client
 from engine.prompts import AGENT_SYSTEM_PROMPT
-from engine.vector import hybrid_search
+from engine.vector import hybrid_search, reranker
 from pydantic import BaseModel
 import os
 
@@ -19,16 +19,16 @@ class MovieRecommendation(BaseModel):
     poster_path: str
     genres: list[str]
 
-def decide(session, query, runtime: int, prompt: str, rating_weight: float = 0.25, limit_movies: int = 50):
+def decide(session, query, runtime: int, prompt: str, rating_weight: float = 0.25, limit_movies: int = 75):
     
-    search = hybrid_search(query, runtime, session, rating_weight, limit_movies)
-    
+    top_search = hybrid_search(query, runtime, session, rating_weight, limit_movies)
+    rerank = reranker(prompt, top_search, limit_movies=20, batch_size=32)
     # lookup po tytule dla wszystkich filmów
-    movie_lookup = {f['movie']: f for f in search}
+    movie_lookup = {f['movie']: f for f in rerank}
     
     movies_str = "\n".join([
-        f"- title: {f['movie']} | genre: {f.get('genre', '')}"
-        for f in search
+        f"- {m['movie'].title} | {', '.join(m['movie'].genre or [])} | {', '.join(m['movie'].tags)} | {m['movie'].description}" 
+        for m in rerank
     ])
 
     response = client.chat(
@@ -57,5 +57,5 @@ def decide(session, query, runtime: int, prompt: str, rating_weight: float = 0.2
             extra.poster_path = matched_extra.get('poster_path', '')
             extra.genres = matched_extra.get('genre', [])
     
-    return result
+    return result 
     

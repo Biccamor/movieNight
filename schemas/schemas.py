@@ -6,8 +6,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class UserPreferences(BaseModel):
 
-    vibes: List[Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS"]]
-    hard_nos: List[Literal["SLOW_BURN", "GORE", "SAD_ENDING", "KIDS_STUFF"]] = Field(default_factory=list)
+    vibes: List[Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS", "SCARES"]]
+    #hard_nos: List[Literal["SLOW_BURN", "GORE", "SAD_ENDING", "KIDS_STUFF"]] = Field(default_factory=list)
     max_runtime: int = Field(default=120, ge=30, le=240)
     allow_seen: bool = False
 
