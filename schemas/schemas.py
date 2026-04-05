@@ -50,9 +50,11 @@ class Login(BaseModel):
     password: str = Field(min_length=8, title="Enter your password")
 
 class Settings(BaseSettings):
+    database_url: str
+    ollama_base_url: str
     secret_key: str
     algorithm: str
     access_token_expire: int = 25
     
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
