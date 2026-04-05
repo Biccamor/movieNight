@@ -6,10 +6,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class UserPreferences(BaseModel):
 
-    vibes: List[Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS"]]
+    vibes: List[Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS", "LAUGH_RIOT", "SPINE_CHILLING", "NOSTALGIA", "INSPIRING", "EPIC_JOURNEY", "GUILTY_PLEASURE"]]
     hard_nos: List[Literal["SLOW_BURN", "GORE", "SAD_ENDING", "KIDS_STUFF"]] = Field(default_factory=list)
     max_runtime: int = Field(default=120, ge=30, le=240)
     allow_seen: bool = False
+    eras: List[str] = Field(default_factory=list)
 
 
 class SessionUser(BaseModel):
