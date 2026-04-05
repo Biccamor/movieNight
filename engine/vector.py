@@ -39,7 +39,7 @@ async def hybrid_search(query_vector: list[float],max_runtime: int, session,  ra
         .where(Movie.runtime <= max_runtime) # type: ignore #TODO: wymysl co jezeli runtime to none
         .limit(limit_movies)
     )
-
+        
     return [
         {"movie": row[0], "score": float(row[1])}
         for row in session.exec(statement).all()
