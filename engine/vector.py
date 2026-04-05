@@ -23,7 +23,6 @@ def reranker(prompt, top_movies: list, limit_movies:int = 25, batch_size:int=32)
     if scores is None:
         return top_movies[:limit_movies]
     
-    scores = scores.tolist()
     reranked = sorted(zip(top_movies, scores), key=lambda x: x[1], reverse=True)
     return [m for m, _ in reranked[:limit_movies]]
 

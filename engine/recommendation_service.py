@@ -12,7 +12,7 @@ class RecomService:
         self.meeting_type = self.meta_data.meeting_type
         self.user_list = self.meta_data.users
         self.preferences = self.meta_data.final_preferences
-        self.hard_nos = [hard_no for user in self.user_list for hard_no in user.personal_vibe.hard_nos]
+        #self.hard_nos = [hard_no for user in self.user_list for hard_no in user.personal_vibe.hard_nos]
     def _add_db(self):
         
         users_seen = {
