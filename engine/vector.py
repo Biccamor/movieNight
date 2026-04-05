@@ -11,7 +11,7 @@ def create_vector(prompt:list | str):
     embedding_list = embedding.tolist() # type: ignore
     return embedding_list
 
-def reranker(prompt, top_movies: list, limit_movies:int = 25, batch_size:int=32):
+async def reranker(prompt, top_movies: list, limit_movies:int = 25, batch_size:int=32):
 
     def to_text(movie: Movie) -> str:
         genres = ", ".join(movie.genre or [])
@@ -26,7 +26,7 @@ def reranker(prompt, top_movies: list, limit_movies:int = 25, batch_size:int=32)
     reranked = sorted(zip(top_movies, scores), key=lambda x: x[1], reverse=True)
     return [m for m, _ in reranked[:limit_movies]]
 
-def hybrid_search(query_vector: list[float],max_runtime: int, session,  rating_weight: float = 0.25, limit_movies: int = 5) -> list:
+async def hybrid_search(query_vector: list[float],max_runtime: int, session,  rating_weight: float = 0.25, limit_movies: int = 5) -> list:
     
 
     rating_penalty = (10.0 - Movie.rating) / 10.0 

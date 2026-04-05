@@ -19,11 +19,11 @@ class MovieRecommendation(BaseModel):
     poster_path: str
     genres: list[str]
 
-def decide(session, query, runtime: int, prompt: str, rating_weight: float = 0.25, limit_movies: int = 75):
+async def decide(session, query, runtime: int, prompt: str, rating_weight: float = 0.25, limit_movies: int = 75):
     
-    top_search = hybrid_search(query, runtime, session, rating_weight, limit_movies)
-    rerank = reranker(prompt, top_search, limit_movies=20, batch_size=32)
-    # lookup po tytule dla wszystkich filmów
+    top_search = await hybrid_search(query, runtime, session, rating_weight, limit_movies)
+    rerank = await reranker(prompt, top_search, limit_movies=20, batch_size=32)
+
     movie_lookup = {m['movie'].title: m['movie'] for m in rerank}
 
     movies_str = "\n".join([
