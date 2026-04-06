@@ -1,8 +1,9 @@
 from ollama import Client
 from engine.prompts import AGENT_SYSTEM_PROMPT
-from engine.vector import hybrid_search
+from engine.vector import hybrid_search, reranker
 from pydantic import BaseModel
 import os
+import time
 
 client = Client(host=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
 
@@ -19,18 +20,26 @@ class MovieRecommendation(BaseModel):
     poster_path: str
     genres: list[str]
 
-def decide(session, query, runtime: int, prompt: str, rating_weight: float = 0.25, limit_movies: int = 50):
-    
-    search = hybrid_search(query, runtime, session, rating_weight, limit_movies)
-    
-    # lookup po tytule dla wszystkich filmów
-    movie_lookup = {f['movie']: f for f in search}
-    
-    movies_str = "\n".join([
-        f"- title: {f['movie']} | genre: {f.get('genre', '')}"
-        for f in search
-    ])
+async def decide(session, query, runtime: int, prompt: str, rating_weight: float = 0.25, limit_movies: int = 75):
+    t1 = time.perf_counter()
+    top_search = await hybrid_search(query, runtime, session, rating_weight, limit_movies)
+    t2 = time.perf_counter()
+    print(f"hybrid serach took {t2-t1}")
+    for m in top_search:
+        print(f"poster for movie {m['movie'].title} path is {m['movie'].poster_path}")
+    rerank = await reranker(prompt, top_search, limit_movies=20, batch_size=32)
+    t3 = time.perf_counter()
+    print(f"rerank took {t3-t2}")
+    movie_lookup = {m['movie'].title: m['movie'] for m in rerank}
 
+    movies_str = "\n".join([
+        f"- {m['movie'].title} | "
+        f"{', '.join(m['movie'].genre or [])} | "
+        f"{', '.join(m['movie'].tags or [])} | "
+        f"{m['movie'].description[:150]}"
+        for m in rerank
+    ])
+    t4 = time.perf_counter()
     response = client.chat(
         model="gemma2:2b",
         messages=[
@@ -43,19 +52,15 @@ def decide(session, query, runtime: int, prompt: str, rating_weight: float = 0.2
     )
     
     result = MovieRecommendation.model_validate_json(response.message.content)  # type: ignore
-    
-    # podmień poster_path dla głównego filmu
+    print(f"llm took {t4-t3}")
     matched = movie_lookup.get(result.movie_title)
     if matched:
-        result.poster_path = matched.get('poster_path', '')
-        result.genres = matched.get('genre', [])
-    
-    # podmień poster_path dla extra_movies
+        result.poster_path = matched.poster_path or ''
+        result.genres = matched.genre or []
     for extra in result.extra_movies:
         matched_extra = movie_lookup.get(extra.movie_title)
         if matched_extra:
-            extra.poster_path = matched_extra.get('poster_path', '')
-            extra.genres = matched_extra.get('genre', [])
-    
-    return result
+            extra.poster_path = matched_extra.poster_path or ''
+            extra.genres = matched_extra.genre or []
+    return result 
     
