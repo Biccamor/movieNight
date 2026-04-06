@@ -16,6 +16,7 @@ async def lifespan(app: FastAPI):
     try:
         d.load_model()
         d.load_db()
+        d.load_reranker()
         create_tables()
         yield
     except Exception as e:
