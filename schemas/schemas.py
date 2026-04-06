@@ -5,11 +5,11 @@ from uuid import uuid4, UUID
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class UserPreferences(BaseModel):
-
-    vibes: List[Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS", "SCARES"]]
-    #hard_nos: List[Literal["SLOW_BURN", "GORE", "SAD_ENDING", "KIDS_STUFF"]] = Field(default_factory=list)
+    vibes: List[Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS", "LAUGH_RIOT", "SPINE_CHILLING", "NOSTALGIA", "INSPIRING", "EPIC_JOURNEY", "GUILTY_PLEASURE"]]
+    hard_nos: List[Literal["SLOW_BURN", "GORE", "SAD_ENDING", "KIDS_STUFF"]] = Field(default_factory=list)
     max_runtime: int = Field(default=120, ge=30, le=240)
     allow_seen: bool = False
+    eras: List[str] = Field(default_factory=list)
 
 
 class SessionUser(BaseModel):
@@ -50,9 +50,11 @@ class Login(BaseModel):
     password: str = Field(min_length=8, title="Enter your password")
 
 class Settings(BaseSettings):
+    database_url: str
+    ollama_base_url: str
     secret_key: str
     algorithm: str
     access_token_expire: int = 25
     
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
