@@ -2,7 +2,7 @@ from database.database_setup import Movie
 from sqlmodel import select
 from flashrank import RerankRequest
 import scripts.dependencies as d
-
+import asyncio
 def create_vector(prompt:list | str):
     
     embedding = d.model.encode(prompt, 
@@ -13,13 +13,8 @@ def create_vector(prompt:list | str):
     embedding_list = embedding.tolist() # type: ignore
     return embedding_list
 
-async def reranker(prompt, top_movies: list, limit_movies:int = 25, batch_size:int=32):
+async def reranker(prompt, top_movies: list, limit_movies:int = 25):
 
-    def to_text(movie: Movie) -> str:
-        genres = ", ".join(movie.genre or [])
-        tags = ", ".join(movie.tags or [])
-        return f"{movie.title} | {genres} | {tags} | {movie.description}"
-    
     passages = [
         {
             "id": i,
@@ -29,9 +24,8 @@ async def reranker(prompt, top_movies: list, limit_movies:int = 25, batch_size:i
     ]
     
     request = RerankRequest(query=prompt, passages=passages)
-    results = d.reranker.rerank(request)
+    results = await asyncio.to_thread(d.reranker.rerank, request)
     
-    # results zwraca posortowane po score z powrotem indeksy
     reranked = [top_movies[r["id"]] for r in results[:limit_movies]]
     return reranked
 

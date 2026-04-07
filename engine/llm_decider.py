@@ -25,9 +25,9 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
     top_search = await hybrid_search(query, runtime, session, rating_weight, limit_movies)
     t2 = time.perf_counter()
     print(f"hybrid serach took {t2-t1}")
-    for m in top_search:
-        print(f"poster for movie {m['movie'].title} path is {m['movie'].poster_path}")
-    rerank = await reranker(prompt, top_search, limit_movies=20, batch_size=32)
+    # for m in top_search:
+    #     print(f"poster for movie {m['movie'].title} path is {m['movie'].poster_path}")
+    rerank = await reranker(prompt, top_search, limit_movies=20)
     t3 = time.perf_counter()
     print(f"rerank took {t3-t2}")
     movie_lookup = {m['movie'].title: m['movie'] for m in rerank}
