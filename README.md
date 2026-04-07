@@ -47,7 +47,7 @@ movieNight/
 │   ├── auth_router.py       # /auth — register & login
 │   ├── recommendation_router.py  # /recommendation — get movie recommendations
 │   ├── metadata_router.py   # /metadata — preference options (vibes, eras)
-│   └── session_router.py    # /session — session management
+│   └── preference_router.py    # /preferences — save preferences
 │
 ├── engine/                  # Core AI recommendation logic
 │   ├── recommendation_service.py  # Orchestrates the full recommendation flow
@@ -125,6 +125,12 @@ This will start:
 | POST   | `/auth/register`  | Create a new user account |
 | POST   | `/auth/login`     | Login and receive a JWT token |
 
+### Preferences — `/preferences`
+
+| Method | Endpoint          | Description              |
+|--------|-------------------|--------------------------|
+| POST   | `/preferences/save` | Save user preferences |
+
 ### Recommendations — `/recommendation`
 
 | Method | Endpoint           | Description                                    |
@@ -162,12 +168,14 @@ This will start:
 
 ## 🧠 Recommendation Engine
 
-The recommendation pipeline works in four steps:
+The recommendation pipeline works in six steps:
 
 1. **Preference aggregation** — Collects all users' vibes and runtime constraints
 2. **Prompt construction** — Builds a natural-language prompt summarizing the group's mood
 3. **Vector embedding** — Encodes the prompt into a 1024-dimensional vector using `FlagEmbedding`
-4. **LLM decision** — Uses Ollama to rank and select the best matching movies from the database via hybrid (vector + metadata) search
+4. **Hybrid search** — Uses pgvector to find the best matching movies from the database via hybrid (vector + metadata) search
+5. **Reranker** — Uses `FlagEmbedding` to rerank the movies based on the prompt
+6. **LLM decision** — Uses Ollama to rank and select the best matching movies from the database via hybrid (vector + metadata) search
 
 ---
 
@@ -192,5 +200,5 @@ The recommendation pipeline works in four steps:
 
 ## 📄 License
 
-This project is proprietary software. See [LICENSE](./LICENSE) for details.  
+This project is proprietary software. See [LICENSE.md](./LICENSE.md) for details.  
 © 2024 Fabian. All rights reserved.
