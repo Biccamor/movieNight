@@ -18,7 +18,8 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True, index=True)
     hash_password: str
 
-    user_taste: list[float] | None = Field(sa_column=Column(Vector(1024)), default=None)
+    user_taste: list[float] | None = Field(sa_column=Column(Vector(1024)), default=None) # coming soon
+    saved_preferences: dict | None = Field(default_factory=dict, sa_column=Column(JSONB))
 
 class Movie(SQLModel, table=True):
 

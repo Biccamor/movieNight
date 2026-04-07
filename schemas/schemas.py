@@ -4,34 +4,52 @@ from pydantic import BaseModel, Field, EmailStr, model_validator
 from uuid import uuid4, UUID
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-class UserPreferences(BaseModel):
-    vibes: List[Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS", "LAUGH_RIOT", "SPINE_CHILLING", "NOSTALGIA", "INSPIRING", "EPIC_JOURNEY", "GUILTY_PLEASURE"]]
-    hard_nos: List[Literal["SLOW_BURN", "GORE", "SAD_ENDING", "KIDS_STUFF"]] = Field(default_factory=list)
+VibeType = Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS", "LAUGH_RIOT", "SPINE_CHILLING", "NOSTALGIA", "INSPIRING", "EPIC_JOURNEY", "GUILTY_PLEASURE"]
+
+class Preferences(BaseModel): #podawane przy nowym requescie/sesji
+    vibes: List[VibeType] = Field(default_factory=list)
+    hard_nos: List[VibeType] = Field(default_factory=list)
     max_runtime: int = Field(default=120, ge=30, le=240)
     allow_seen: bool = False
     eras: List[str] = Field(default_factory=list)
 
+class SavedPreferences(BaseModel): #jednorazowo podane przy rejestracji
+    vibes: List[VibeType] = Field(default_factory=list)
+    hard_nos: List[VibeType] = Field(default_factory=list)
+    eras: List[str] = Field(default_factory=list)
+    movies: List[str] = Field(default_factory=list)
 
-class SessionUser(BaseModel):
+class User(BaseModel):
+    email: EmailStr #haslo jest przywiazane do maila nie usera
     user_id: UUID
     user_name: str
-    personal_vibe: UserPreferences
+    saved_preferences: SavedPreferences
+    profile_picture: Optional[str] = None #zgnieciony obrazek do profilu
 
+class MovieRequest(BaseModel): #pojedynczy request o film niekoniecznie z sesji
+    user_id: UUID
+    final_preferences: Preferences
 
-class MovieSession(BaseModel):
+class MovieSessionUser(BaseModel): #czlonek sesji
+    user_id: UUID
+    user_name: str
+    personal_vibe: Preferences
+
+class GhostUser(BaseModel): #czlonek sesji ktory nie jest zalogowany (coming soon)
+    user_name: str
+    personal_vibe: Preferences
+
+class MovieSession(BaseModel): #sesja od jednego uzytkownika do ktorej dolaczyc moze wiecej
+    host_id: UUID
     session_id: UUID = Field(default_factory=uuid4)
     invite_code: str  # Np. "XJ79B" - do wejścia przez kod/QR
     
     meeting_type: Literal["RANDKA", "EKIPA", "RODZINA", "SOLO"]
     
     is_active: bool = True
-    users: List[SessionUser] = Field(default_factory=list)
+    users: List[MovieSessionUser] = Field(default_factory=list)
     
-    final_preferences: Optional[UserPreferences] = None
-
-class CreateSessionRequest(BaseModel):
-    host_id: UUID
-    meeting_type: Literal["RANDKA", "EKIPA", "RODZINA", "SOLO"]
+    final_preferences: Optional[Preferences] = None
 
 class Register(BaseModel):
     email: EmailStr
@@ -48,6 +66,9 @@ class Register(BaseModel):
 class Login(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, title="Enter your password")
+
+class AppSettings(BaseModel):
+    theme: Literal["DARK", "LIGHT", "SYSTEM"] = "LIGHT"
 
 class Settings(BaseSettings):
     database_url: str
