@@ -201,4 +201,4 @@ The recommendation pipeline works in six steps:
 ## 📄 License
 
 This project is proprietary software. See [LICENSE.md](./LICENSE.md) for details.  
-© 2024 Fabian. All rights reserved.
+© 2026 Fabian. All rights reserved.
