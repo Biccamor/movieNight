@@ -1,6 +1,8 @@
 from database.database_setup import Movie
 from sqlmodel import select
+from flashrank import RerankRequest
 import scripts.dependencies as d
+
 def create_vector(prompt:list | str):
     
     embedding = d.model.encode(prompt, 
@@ -18,15 +20,22 @@ async def reranker(prompt, top_movies: list, limit_movies:int = 25, batch_size:i
         tags = ", ".join(movie.tags or [])
         return f"{movie.title} | {genres} | {tags} | {movie.description}"
     
-    pairs = [(prompt, to_text(m["movie"])) for m in top_movies]
-    scores = d.reranker.compute_score(pairs, batch_size=batch_size)
-    if scores is None:
-        return top_movies[:limit_movies]
+    passages = [
+        {
+            "id": i,
+            "text": f"{m['movie'].title} | {', '.join(m['movie'].genre or [])} | {', '.join((m['movie'].tags or [])[:5])} | {m['movie'].description[:150]}"
+        }
+        for i, m in enumerate(top_movies)
+    ]
     
-    reranked = sorted(zip(top_movies, scores), key=lambda x: x[1], reverse=True)
-    return [m for m, _ in reranked[:limit_movies]]
+    request = RerankRequest(query=prompt, passages=passages)
+    results = d.reranker.rerank(request)
+    
+    # results zwraca posortowane po score z powrotem indeksy
+    reranked = [top_movies[r["id"]] for r in results[:limit_movies]]
+    return reranked
 
-async def hybrid_search(query_vector: list[float],max_runtime: int, session,  rating_weight: float = 0.25, limit_movies: int = 5) -> list:
+async def hybrid_search(query_vector: list[float],max_runtime: int, session,  rating_weight: float = 0.25, limit_movies: int = 50) -> list:
     
 
     rating_penalty = (10.0 - Movie.rating) / 10.0 

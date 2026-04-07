@@ -1,4 +1,5 @@
-from FlagEmbedding import BGEM3FlagModel, FlagReranker
+from FlagEmbedding import BGEM3FlagModel
+from flashrank import Ranker
 from sqlmodel import create_engine
 from dotenv import load_dotenv
 import os
@@ -16,7 +17,7 @@ def load_model():
 
 def load_reranker():
     global reranker
-    reranker = FlagReranker('BAAI/bge-reranker-v2-m3', use_fp16=True)
+    reranker = Ranker(model_name="ms-marco-MiniLM-L-12-v2", cache_dir="/opt")
 
 def load_db():
     global engine 

@@ -80,7 +80,7 @@ class RecomService:
 
         self._add_db()
         
-        self.AGENT_USER_PROMPT = "Reccomend a mvoie for a group of users containg: " + self.AGENT_USER_PROMPT
+        self.AGENT_USER_PROMPT = "Reccomend a movie for a group of users containg: " + self.AGENT_USER_PROMPT
         #recoms = hybrid_search(self.vector, max(self.recommended_time, self.min_time), self.session,
         #                       rating_weight=0.25, limit_movies=5)
         recoms = await decide(self.session, self.vector, max(self.recommended_time, self.min_time), self.AGENT_USER_PROMPT)
