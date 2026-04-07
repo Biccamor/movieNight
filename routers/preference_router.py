@@ -32,3 +32,22 @@ async def save_preferences(data: SavedPreferences, user_id: UUID, token: str, se
     session.commit()
     session.refresh(user)
     return {"message": "Preferences saved successfully", "user_id": user.user_id}
+
+
+@router.get("/get")
+async def get_preferences(user_id: UUID, token: str, session = Depends(get_session)):
+    
+    if not decodeJWT(token):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+    
+    user = session.exec(select(User).where(User.user_id == user_id)).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    return user.saved_preferences or {}
