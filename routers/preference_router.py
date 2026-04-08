@@ -11,7 +11,7 @@ from uuid import uuid4, UUID
 router = APIRouter(prefix="/preferences", tags=['preferences'])
 
 
-@router.post("/save")
+@router.post("/save", summary="Save the basic preferences of user for movies")
 async def save_preferences(data: SavedPreferences, user_id: UUID, token: str, session = Depends(get_session)):
     
     if not decodeJWT(token):
@@ -34,7 +34,7 @@ async def save_preferences(data: SavedPreferences, user_id: UUID, token: str, se
     return {"message": "Preferences saved successfully", "user_id": user.user_id}
 
 
-@router.get("/get")
+@router.get("/get", summary = "get preferences of user")
 async def get_preferences(user_id: UUID, token: str, session = Depends(get_session)):
     
     if not decodeJWT(token):

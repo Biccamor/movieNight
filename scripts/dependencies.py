@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 model: BGEM3FlagModel = None # type: ignore # 
 engine = None
-
+rerankeLr: Ranker = None #type: ignore
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -17,7 +17,7 @@ def load_model():
 
 def load_reranker():
     global reranker
-    reranker = Ranker(model_name="ms-marco-MiniLM-L-12-v2", cache_dir="/opt")
+    reranker = Ranker(model_name="ms-marco-MiniLM-L-12-v2", cache_dir="/home/appuser/.cache/flashrank")
 
 def load_db():
     global engine 
