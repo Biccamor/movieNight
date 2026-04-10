@@ -28,7 +28,7 @@ The backend is built with **FastAPI**, uses **PostgreSQL + pgvector** for semant
 | Database        | PostgreSQL 17 + pgvector                |
 | ORM             | SQLModel + SQLAlchemy                   |
 | AI / LLM        | Ollama (local)                          |
-| Embeddings      | `FlagEmbedding`, `sentence-transformers`|
+| Embeddings      | `FlagEmbedding`, `flashRank`|
 | Auth            | JWT (PyJWT) + Argon2 password hashing   |
 | Containerization| Docker + Docker Compose                 |
 
@@ -172,9 +172,9 @@ The recommendation pipeline works in six steps:
 
 1. **Preference aggregation** — Collects all users' vibes and runtime constraints
 2. **Prompt construction** — Builds a natural-language prompt summarizing the group's mood
-3. **Vector embedding** — Encodes the prompt into a 1024-dimensional vector using `FlagEmbedding`
+3. **Vector embedding** — Encodes the prompt into a 1024-dimensional vector using `FlagEmbedding` model `BGE-M3`
 4. **Hybrid search** — Uses pgvector to find the best matching movies from the database via hybrid (vector + metadata) search
-5. **Reranker** — Uses `FlagEmbedding` to rerank the movies based on the prompt
+5. **Reranker** — Uses `FlashRank` model `ms-marco-MiniLM-L-12-v2` to rerank the movies based on the prompt
 6. **LLM decision** — Uses Ollama to rank and select the best matching movies from the database via hybrid (vector + metadata) search
 
 ---

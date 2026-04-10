@@ -31,6 +31,7 @@ services:
     env_file:
       - .env
     environment:
+        HF_HUB_DOWNLOAD_TIMEOUT: 60
         OLLAMA_BASE_URL: http://ollama:11434
     ports:
       - "8010:8010"
@@ -39,8 +40,11 @@ services:
         condition: service_healthy
       ollama:
         condition: service_started
-    
+    volumes:
+      - hf_cache:/root/.cache/huggingface
+
     restart: unless-stopped
 
 volumes:
   postgres_data:
+  hf_cache:

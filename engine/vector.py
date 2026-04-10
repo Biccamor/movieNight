@@ -18,15 +18,15 @@ async def reranker(prompt, top_movies: list, limit_movies:int = 25):
     passages = [
         {
             "id": i,
-            "text": f"{m['movie'].title} | {', '.join(m['movie'].genre or [])} | {', '.join((m['movie'].tags or [])[:5])} | {m['movie'].description[:150]}"
+            "text": f"{m['movie'].title} | {', '.join(m['movie'].genre or [])} | {', '.join((m['movie'].tags or []))} | {m['movie'].description[:300]}"
         }
         for i, m in enumerate(top_movies)
     ]
-    
+    # reranker 
     request = RerankRequest(query=prompt, passages=passages)
     results = await asyncio.to_thread(d.reranker.rerank, request)
-    
-    reranked = [top_movies[r["id"]] for r in results[:limit_movies]]
+
+    reranked = [top_movies[r["id"]] for r in results[:limit_movies]] # bierzemy z top movies topowe filmy wedlug rerankera wiec jest tam poster_path etc
     return reranked
 
 async def hybrid_search(query_vector: list[float],max_runtime: int, session,  rating_weight: float = 0.25, limit_movies: int = 50) -> list:

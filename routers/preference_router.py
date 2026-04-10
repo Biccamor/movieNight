@@ -1,17 +1,16 @@
 from fastapi import APIRouter, HTTPException,status, Depends
 from schemas.schemas import SavedPreferences
 from scripts.security import decodeJWT
-from scripts.uttils import check_if_email_exists
 from sqlmodel import select
 from database.main_db import get_session
 from database.database_setup import User
-from uuid import uuid4, UUID
+from uuid import UUID
 
 
 router = APIRouter(prefix="/preferences", tags=['preferences'])
 
 
-@router.post("/save")
+@router.post("/save", summary="Save the basic preferences of user for movies")
 async def save_preferences(data: SavedPreferences, user_id: UUID, token: str, session = Depends(get_session)):
     
     if not decodeJWT(token):
@@ -34,7 +33,7 @@ async def save_preferences(data: SavedPreferences, user_id: UUID, token: str, se
     return {"message": "Preferences saved successfully", "user_id": user.user_id}
 
 
-@router.get("/get")
+@router.get("/get", summary = "get preferences of user")
 async def get_preferences(user_id: UUID, token: str, session = Depends(get_session)):
     
     if not decodeJWT(token):
