@@ -1,11 +1,10 @@
 from fastapi import APIRouter, HTTPException,status, Depends
 from schemas.schemas import SavedPreferences
 from scripts.security import decodeJWT
-from scripts.uttils import check_if_email_exists
 from sqlmodel import select
 from database.main_db import get_session
 from database.database_setup import User
-from uuid import uuid4, UUID
+from uuid import UUID
 
 
 router = APIRouter(prefix="/preferences", tags=['preferences'])

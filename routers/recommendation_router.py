@@ -13,7 +13,7 @@ async def save_session(meta_data: MovieSession, session=Depends(get_session)):
     """
     Przyjmuje dane sesji (użytkownicy, preferencje, typ spotkania),
     zapisuje je w bazie danych i zwraca session_id.
-    Lekki endpoint – nie wywołuje modeli AI.
+    Lekki endpoint nie wywołuje modeli AI.
     """
     recom_service = RecomService(meta_data, session)
     session_id = recom_service._add_db()

@@ -1,6 +1,4 @@
 1. polacz vibes do danych tags lub gatunkow
-2. napraw plakaty
-3. zamien cross encoder 
 4. error handling + podstawowe logi
 5. MVP z frontem
 6. rate limiting
