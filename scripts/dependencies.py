@@ -22,7 +22,7 @@ def load_reranker():
 def load_db():
     global engine 
     engine = create_engine(DATABASE_URL, #type: ignore
-                        echo=True,
+                        echo=False,
                         pool_size=20,          
                         max_overflow=10,      
                         pool_timeout=60,      

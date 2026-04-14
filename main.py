@@ -11,12 +11,11 @@ import scripts.dependencies as d
 from database.main_db import create_tables
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from scripts.security import decodeJWT
+from scripts.security import get_rate_limit_key
 
-#limiter = Limiter(key_func=...)
+limiter = Limiter(key_func=get_rate_limit_key, default_limits=["100/minute"])
 
 logger = logging.getLogger(__name__)
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
@@ -31,9 +30,10 @@ async def lifespan(app: FastAPI):
     finally:
         pass
 
-
-
 app = FastAPI(lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 app.include_router(recommendation_router)
 app.include_router(auth_router)
 app.include_router(metadata_router)
