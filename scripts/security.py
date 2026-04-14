@@ -3,9 +3,12 @@ from argon2.exceptions import VerifyMismatchError
 import jwt
 from schemas.schemas import Settings
 import datetime
+from fastapi import HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 setting = Settings() # type: ignore
 ph = PasswordHasher()
+security = HTTPBearer()
 
 def hash_password(password: str):
     """Zamiana hasła podanego przez uzytkownika na hash"""
@@ -50,3 +53,28 @@ def decodeJWT(token: str) -> dict:
     except jwt.InvalidTokenError:
         print("Nieprawidłowy token!")
         return {}
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+    """ funkcja do wyciagania tokenu usera z HTTP """
+    
+    token = credentials.credentials
+
+    payload = decodeJWT(token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    return payload
+
+# def get_ip(token: str):
+    
+#     if not decodeJWT(token):
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Invalid token"
+#         )
+
+#     return decodeJWT(token)["user_id"]
+    

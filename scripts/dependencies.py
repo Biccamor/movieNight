@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 model: BGEM3FlagModel = None # type: ignore # 
 engine = None
-rerankeLr: Ranker = None #type: ignore
+reranker: Ranker = None #type: ignore
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")

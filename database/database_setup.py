@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import UniqueConstraint
 from uuid import UUID, uuid4
 from pgvector.sqlalchemy import Vector
-from datetime import date
+from datetime import date, datetime
 
 class User(SQLModel, table=True):
     """
@@ -67,3 +67,17 @@ class Rating(SQLModel, table=True):
     rated_at: date | None = Field(default_factory=date.today)
     # -1 = dislike 0 = have seen no opinion 1 = like 
     rating: int = Field(default=0, index=True) 
+
+
+class RefreshToken(SQLModel, table=True):
+    """
+    Przechowuje refresh tokeny użytkowników.
+    Pozwala na unieważnienie tokenów przy wylogowaniu (revoke).
+    """
+    __tablename__ = "refresh_token"  # type: ignore
+
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    user_id: UUID = Field(foreign_key="app_user.user_id", index=True)
+    token: str = Field(index=True, unique=True)
+    expires_at: datetime
+    revoked: bool = Field(default=False)

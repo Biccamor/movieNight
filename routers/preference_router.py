@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException,status, Depends
 from schemas.schemas import SavedPreferences
-from scripts.security import decodeJWT
+from scripts.security import get_current_user
 from sqlmodel import select
 from database.main_db import get_session
 from database.database_setup import User
@@ -11,14 +11,14 @@ router = APIRouter(prefix="/preferences", tags=['preferences'])
 
 
 @router.post("/save", summary="Save the basic preferences of user for movies")
-async def save_preferences(data: SavedPreferences, user_id: UUID, token: str, session = Depends(get_session)):
+async def save_preferences(data: SavedPreferences, user_id: UUID, user_token: dict = Depends(get_current_user), session = Depends(get_session)):
     
-    if not decodeJWT(token):
+    if user_id != user_token["user_id"]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
         )
-    
+
     user = session.exec(select(User).where(User.user_id == user_id)).first()
     if not user:
         raise HTTPException(
@@ -34,14 +34,8 @@ async def save_preferences(data: SavedPreferences, user_id: UUID, token: str, se
 
 
 @router.get("/get", summary = "get preferences of user")
-async def get_preferences(user_id: UUID, token: str, session = Depends(get_session)):
-    
-    if not decodeJWT(token):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
-        )
-    
+async def get_preferences(user_id: UUID, user_token: dict = Depends(get_current_user), session = Depends(get_session)):
+
     user = session.exec(select(User).where(User.user_id == user_id)).first()
     if not user:
         raise HTTPException(

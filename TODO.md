@@ -1,9 +1,11 @@
-1. polacz vibes do danych tags lub gatunkow
-4. error handling + podstawowe logi
-5. MVP z frontem
-6. rate limiting
-7. beta testy (małe, 10-20 osób)
-8. fixes na podstawie feedbacku
-9. dodatkowe features
-10. metryki + LLM as judge
-11. większe beta testy
+1. napraw security (nie ma jwt tokenow w recomendation endpoint)
+2. rate limiter
+3. poster_path + rok 
+4. lobby (rest api)
+5. testy 
+6. deploy (beta)
+7. feedback i poprawki
+8. dodatkowe funkcjonalności (Rating + GhostUser)
+9. metryki do sprawdzania jak dobrze poleca filmy
+10. LLM as judge (do oceniania filmow)
+11. deploy (production)
