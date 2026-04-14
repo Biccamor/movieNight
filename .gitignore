@@ -15,3 +15,5 @@ venv/
 env/
 .venv/
 movieNight/
+ms-marco-MiniLM-L-12-v2/
+__MACOSX/
