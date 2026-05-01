@@ -12,8 +12,7 @@ from database.main_db import create_tables
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from scripts.security import get_rate_limit_key
-
-limiter = Limiter(key_func=get_rate_limit_key, default_limits=["100/minute"])
+from scripts.dependencies import limiter
 
 logger = logging.getLogger(__name__)
 @asynccontextmanager
@@ -32,7 +31,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler) # type: ignore
 
 app.include_router(recommendation_router)
 app.include_router(auth_router)

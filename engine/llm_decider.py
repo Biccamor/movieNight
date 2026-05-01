@@ -2,15 +2,35 @@ from ollama import Client
 from engine.prompts import AGENT_SYSTEM_PROMPT
 from engine.vector import hybrid_search, reranker
 from pydantic import BaseModel
+from typing import Optional
+from datetime import date
 import os
 import time
 
 client = Client(host=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
 
+# ── Schematy dla LLM (tylko to co model może znać) ──────────────────────────
+
+class LlmExtraMovie(BaseModel):
+    """Schemat extra filmów zwracanych przez LLM — tylko tytuł i gatunki."""
+    movie_title: str
+    genres: list[str]
+
+class LlmOutput(BaseModel):
+    """Schemat odpowiedzi LLM — bez poster_path i release_date (LLM ich nie zna)."""
+    thought: str
+    movie_title: str
+    reasoning_pl: str
+    extra_movies: list[LlmExtraMovie]
+    genres: list[str]
+
+# ── Schematy odpowiedzi API (z danymi z bazy) ────────────────────────────────
+
 class ExtraMovie(BaseModel):
-    movie_title: str 
+    movie_title: str
     genres: list[str]
     poster_path: str
+    release_date: Optional[date] = None   # mapowane z bazy po tytule
 
 class MovieRecommendation(BaseModel):
     thought: str
@@ -19,14 +39,13 @@ class MovieRecommendation(BaseModel):
     extra_movies: list[ExtraMovie]
     poster_path: str
     genres: list[str]
+    release_date: Optional[date] = None   # mapowane z bazy po tytule
 
 async def decide(session, query, runtime: int, prompt: str, rating_weight: float = 0.25, limit_movies: int = 75):
     t1 = time.perf_counter()
     top_search = await hybrid_search(query, runtime, session, rating_weight, limit_movies)
     t2 = time.perf_counter()
     print(f"hybrid serach took {t2-t1}")
-    # for m in top_search:
-    #     print(f"poster for movie {m['movie'].title} path is {m['movie'].poster_path}")
     rerank = await reranker(prompt, top_search, limit_movies=20)
     t3 = time.perf_counter()
     print(f"rerank took {t3-t2}")
@@ -48,19 +67,31 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
             {'role': 'user', 
              'content': f"Movies you can choose from:\n{movies_str}\n{prompt}"}
         ],
-        format=MovieRecommendation.model_json_schema()
+        format=LlmOutput.model_json_schema()   # LLM dostaje schemat BEZ poster_path i release_date
     )
     
-    result = MovieRecommendation.model_validate_json(response.message.content)  # type: ignore
+    llm_result = LlmOutput.model_validate_json(response.message.content)  # type: ignore
     print(f"llm took {t4-t3}")
-    matched = movie_lookup.get(result.movie_title)
-    if matched:
-        result.poster_path = matched.poster_path or ''
-        result.genres = matched.genre or []
-    for extra in result.extra_movies:
+
+    # mapujemy dane z bazy (poster, rok, gatunki) — LLM ich nie zna, tylko tytuły
+    matched = movie_lookup.get(llm_result.movie_title)
+    result = MovieRecommendation(
+        thought=llm_result.thought,
+        movie_title=llm_result.movie_title,
+        reasoning_pl=llm_result.reasoning_pl,
+        extra_movies=[],
+        poster_path=matched.poster_path or '' if matched else '',
+        genres=matched.genre or [] if matched else llm_result.genres,
+        release_date=matched.release_date if matched else None,
+    )
+
+    for extra in llm_result.extra_movies:
         matched_extra = movie_lookup.get(extra.movie_title)
-        if matched_extra:
-            extra.poster_path = matched_extra.poster_path or ''
-            extra.genres = matched_extra.genre or []
-    return result 
-    
+        result.extra_movies.append(ExtraMovie(
+            movie_title=extra.movie_title,
+            genres=matched_extra.genre or [] if matched_extra else extra.genres,
+            poster_path=matched_extra.poster_path or '' if matched_extra else '',
+            release_date=matched_extra.release_date if matched_extra else None,
+        ))
+
+    return result

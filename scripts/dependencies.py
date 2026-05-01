@@ -3,10 +3,12 @@ from flashrank import Ranker
 from sqlmodel import create_engine
 from dotenv import load_dotenv
 import os
+from slowapi import Limiter
+from scripts.security import get_rate_limit_key
 model: BGEM3FlagModel = None # type: ignore # 
 engine = None
 reranker: Ranker = None #type: ignore
-
+limiter = Limiter(key_func=get_rate_limit_key, default_limits=["100/minute"])
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
