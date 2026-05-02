@@ -9,4 +9,3 @@ def check_if_email_exists(email: str, session) -> bool:
     existing_user = session.exec(statement).first()
     
     return existing_user is not None
-    

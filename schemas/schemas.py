@@ -67,6 +67,9 @@ class Login(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, title="Enter your password")
 
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
 class AppSettings(BaseModel):
     theme: Literal["DARK", "LIGHT", "SYSTEM"] = "LIGHT"
 
@@ -75,7 +78,8 @@ class Settings(BaseSettings):
     ollama_base_url: str
     secret_key: str
     algorithm: str
-    access_token_expire: int = 25
-    
+    access_token_expire: int = 25          # minuty
+    refresh_token_expire_days: int = 7     # dni
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

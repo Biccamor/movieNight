@@ -1,15 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from schemas.schemas import MovieSession
 from database.main_db import get_session
 from database.database_setup import Room_Session
 from engine.recommendation_service import RecomService
 from uuid import UUID
+from scripts.security import get_current_user
+from scripts.dependencies import limiter
 
 router = APIRouter(prefix="/recommendation", tags=["recommendation"])
 
 
 @router.post("/session", summary="Zapisz sesję i preferencje do bazy")
-async def save_session(meta_data: MovieSession, session=Depends(get_session)):
+@limiter.limit("20/minute")  # lekki endpoint — wiecej requestow dozwolone
+async def save_session(request: Request, meta_data: MovieSession, user: dict = Depends(get_current_user), session=Depends(get_session)):
     """
     Przyjmuje dane sesji (użytkownicy, preferencje, typ spotkania),
     zapisuje je w bazie danych i zwraca session_id.
@@ -21,12 +24,14 @@ async def save_session(meta_data: MovieSession, session=Depends(get_session)):
 
 
 @router.post("/{session_id}", summary="Pobierz rekomendacje filmów dla sesji")
-async def get_recommendation(session_id: UUID, session=Depends(get_session)):
+@limiter.limit("2/minute")  # ciezki endpoint AI — scisle limitowany
+async def get_recommendation(request: Request, session_id: UUID, user: dict = Depends(get_current_user), session=Depends(get_session)):
     """
     Na podstawie wcześniej zapisanej sesji (session_id) wywołuje silnik AI
     i zwraca rekomendacje filmów.
     Ciężki endpoint może trwać dłużej ze względu na LLM.
     """
+
     db_session = session.get(Room_Session, session_id)
     if not db_session:
         raise HTTPException(status_code=404, detail="Sesja nie została znaleziona")
