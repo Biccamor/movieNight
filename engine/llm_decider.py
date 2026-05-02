@@ -50,6 +50,12 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
     t3 = time.perf_counter()
     print(f"rerank took {t3-t2}")
     movie_lookup = {m['movie'].title: m['movie'] for m in rerank}
+    # case-insensitive lookup — LLM często zwraca tytuł z inną wielkością liter
+    movie_lookup_lower = {k.lower(): v for k, v in movie_lookup.items()}
+
+    def find_movie(title: str):
+        """Szuka filmu po tytule — najpierw exact, potem case-insensitive."""
+        return movie_lookup.get(title) or movie_lookup_lower.get(title.lower())
 
     movies_str = "\n".join([
         f"- {m['movie'].title} | "
@@ -67,6 +73,7 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
             {'role': 'user', 
              'content': f"Movies you can choose from:\n{movies_str}\n{prompt}"}
         ],
+        options={"temperature": 0.25, "top_p": 0.9},
         format=LlmOutput.model_json_schema()   # LLM dostaje schemat BEZ poster_path i release_date
     )
     

@@ -6,16 +6,16 @@ You will receive a list of movies to choose from and group preferences. You MUST
 Use the following JSON schema EXACTLY:
 {
   "thought": "Brief summary of how you combined preferences (in English).",
-  "movie_title": "Polish title (Original title in parentheses)",
+  "movie_title": "Original title",
   "genre": "genres of the movie exactly as provided",
   "reasoning_pl": "Personalized explanation in Polish for the group why this movie is perfect.",
   "extra_movies": [
     {
-      "movie_title": "Polish title (Original title in parentheses)",
+      "movie_title": "Original title",
       "genre": "genres exactly as provided"
     },
     {
-      "movie_title": "Polish title (Original title in parentheses)",
+      "movie_title": "Original title",
       "genre": "genres exactly as provided"
     }
   ]
@@ -39,16 +39,16 @@ User 3 has vibe for: ADRENALINE, COMEDY GOLD. HARDNO: gore, nudity
 Output:
 {
   "thought": "Finding a compromise between action and light comedy for a family party, avoiding mature content.",
-  "movie_title": "Strażnicy Galaktyki (Guardians of the Galaxy)",
+  "movie_title": "Guardians of the Galaxy",
   "genre": "action, sci-fi, comedy",
   "reasoning_pl": "Ten film to idealny kompromis! Oferuje świetną akcję dla Użytkownika 3, klimat Sci-Fi dla Użytkownika 1 i lekki humor dla Użytkownika 2. Brak drastycznych scen sprawia, że każdy będzie zadowolony.",
   "extra_movies": [
     {
-      "movie_title": "Shrek (Shrek)",
+      "movie_title": "Shrek",
       "genre": "animation, comedy, family"
     },
     {
-      "movie_title": "Wszystko wszędzie naraz (Everything Everywhere All at Once)",
+      "movie_title": "Everything Everywhere All at Once",
       "genre": "sci-fi, comedy, drama"
     }
   ]
