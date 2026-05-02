@@ -12,7 +12,7 @@ router = APIRouter(prefix="/recommendation", tags=["recommendation"])
 
 @router.post("/session", summary="Zapisz sesję i preferencje do bazy")
 @limiter.limit("20/minute")  # lekki endpoint — wiecej requestow dozwolone
-async def save_session(meta_data: MovieSession, user: dict = Depends(get_current_user), session=Depends(get_session)):
+async def save_session(request: Request, meta_data: MovieSession, user: dict = Depends(get_current_user), session=Depends(get_session)):
     """
     Przyjmuje dane sesji (użytkownicy, preferencje, typ spotkania),
     zapisuje je w bazie danych i zwraca session_id.

@@ -60,7 +60,7 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
     ])
     t4 = time.perf_counter()
     response = client.chat(
-        model="gemma2:2b",
+        model="qwen2.5:3b",
         messages=[
             {'role': 'system', 
              'content': AGENT_SYSTEM_PROMPT.replace("{group_preferences_input}", prompt)},
