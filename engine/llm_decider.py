@@ -31,6 +31,8 @@ class ExtraMovie(BaseModel):
     genres: list[str]
     poster_path: str
     release_date: Optional[date] = None   # mapowane z bazy po tytule
+    runtime: Optional[int] = None
+    rating: Optional[float] = None
 
 class MovieRecommendation(BaseModel):
     thought: str
@@ -40,6 +42,8 @@ class MovieRecommendation(BaseModel):
     poster_path: str
     genres: list[str]
     release_date: Optional[date] = None   # mapowane z bazy po tytule
+    runtime: Optional[int] = None
+    rating: Optional[float] = None
 
 async def decide(session, query, runtime: int, prompt: str, rating_weight: float = 0.25, limit_movies: int = 75):
     t1 = time.perf_counter()
@@ -49,6 +53,11 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
     rerank = await reranker(prompt, top_search, limit_movies=20)
     t3 = time.perf_counter()
     print(f"rerank took {t3-t2}")
+    
+    if not rerank:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Brak filmów spełniających kryteria, spróbuj np. zwiększyć maksymalny czas trwania.")
+        
     movie_lookup = {m['movie'].title: m['movie'] for m in rerank}
     # case-insensitive lookup — LLM często zwraca tytuł z inną wielkością liter
     movie_lookup_lower = {k.lower(): v for k, v in movie_lookup.items()}
@@ -80,8 +89,8 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
     llm_result = LlmOutput.model_validate_json(response.message.content)  # type: ignore
     print(f"llm took {t4-t3}")
 
-    # mapujemy dane z bazy (poster, rok, gatunki) — LLM ich nie zna, tylko tytuły
-    matched = movie_lookup.get(llm_result.movie_title)
+    # mapujemy dane z bazy (poster, rok, gatunki, czas trwania, ocena)
+    matched = find_movie(llm_result.movie_title)
     result = MovieRecommendation(
         thought=llm_result.thought,
         movie_title=llm_result.movie_title,
@@ -90,15 +99,19 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
         poster_path=matched.poster_path or '' if matched else '',
         genres=matched.genre or [] if matched else llm_result.genres,
         release_date=matched.release_date if matched else None,
+        runtime=matched.runtime if matched else None,
+        rating=matched.rating if matched else None,
     )
 
     for extra in llm_result.extra_movies:
-        matched_extra = movie_lookup.get(extra.movie_title)
+        matched_extra = find_movie(extra.movie_title)
         result.extra_movies.append(ExtraMovie(
             movie_title=extra.movie_title,
             genres=matched_extra.genre or [] if matched_extra else extra.genres,
             poster_path=matched_extra.poster_path or '' if matched_extra else '',
             release_date=matched_extra.release_date if matched_extra else None,
+            runtime=matched_extra.runtime if matched_extra else None,
+            rating=matched_extra.rating if matched_extra else None,
         ))
 
     return result
