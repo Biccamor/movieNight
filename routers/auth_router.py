@@ -18,7 +18,7 @@ async def create_account(request: Request, data: Register, session = Depends(get
     if check_if_email_exists(data.email, session):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Użytkownik o takim adresie e-mail już istnieje."
+            detail="Account with this email adress already exists"
         )
     
     hashed_password = hash_password(data.password)
@@ -39,7 +39,7 @@ async def login_account(request: Request, data: Login, session = Depends(get_ses
     
     login_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Nieprawidłowy e-mail lub hasło",
+        detail="Wrong e-mail or password",
         headers={"WWW-Authenticate": "Bearer"},
     )
     
