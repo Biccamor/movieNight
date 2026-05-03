@@ -39,6 +39,7 @@ class RecomService:
         vectors = create_vector(prompts)
 
         group_vector = self._build_group_vector(vectors, weights)
+        conflict = self._detect_conflict(vectors)
 
         session_id = uuid4()
         new_group = Room_Session(
@@ -50,6 +51,7 @@ class RecomService:
             preferences=preferences_excluded,
             users_in_session=user_id_list,
             embedding_preferences=group_vector,
+            conflict=conflict
         )
 
         self.session.add(new_group)
@@ -119,11 +121,14 @@ class RecomService:
         vector = db_session.embedding_preferences
         max_runtime = max(db_session.recomended_runtime or 120, db_session.min_runtime or 90)
 
-        users_info = " ".join(
-            f"user {u.get('user_name', 'unknown')} prefers vibes: {', '.join(u.get('personal_vibe', {}).get('vibes', []))}"
-            for u in (db_session.preferences or [])
-        )
-        agent_prompt = f"Recommend a movie for a group of users containing: {users_info}"
+        users_info = ""
+        for u in (db_session.preferences or []):
+            vibes = ", ".join(u.get("personal_vibe", {}).get("vibes", []))
+            users_info += f"user: {u.get('user_name', 'unknown')} wants movies with vibes: {vibes}\n"
+        users_info += f"meeting type: {db_session.occasion}\n"
+        if db_session.conflict:
+            users_info += "NOTE: users have very different tastes. Pick a film nobody will regret, not one person will love."
 
-        recommendations = await decide(session, vector, max_runtime, agent_prompt)
+
+        recommendations = await decide(session, vector, max_runtime, users_info)
         return recommendations

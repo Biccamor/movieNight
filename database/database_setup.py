@@ -53,6 +53,7 @@ class Room_Session(SQLModel,table=True):
 
     users_in_session: list[str] = Field(default_factory=list, sa_column=Column(JSONB))
     embedding_preferences: list[float] | None = Field(sa_column=Column(Vector(1024)), default=None)
+    conflict: bool | None = Field(default=None)
 
 
 class Rating(SQLModel, table=True):
