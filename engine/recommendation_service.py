@@ -33,8 +33,9 @@ class RecomService:
             for u in self.user_list
         ]
 
-        agent_prompt = self._create_prompt()
-        vector = create_vector(agent_prompt)
+        agent_prompt = self._create_user_prompts()
+        prompts = [p for p, _ in agent_prompt]
+        vector = create_vector(prompts)
 
         session_id = uuid4()
         new_group = Room_Session(
@@ -53,14 +54,27 @@ class RecomService:
 
         return session_id
 
-    def _create_prompt(self) -> str:
+    def _create_user_prompts(self) -> list[tuple[str, int]]:
+        """Zwraca listę (prompt, weight) gdzie weight = liczba vibów"""
+        result = []
+        for user in self.user_list:
+            vibes = user.personal_vibe.vibes
+            if not vibes:
+                continue
+            prompt = f"movie vibes: {', '.join(vibes)}, meeting type: {self.meeting_type}"
+            result.append((prompt, len(vibes)))
+        return result
+    
+    def _create_prompt(self, conflict: bool) -> str:
         prompt = ""
         for user in self.user_list:
-            vibes = ", ".join(user.personal_vibe.vibes if user.personal_vibe.vibes != [] else "all")
-            prompt += f"user: {user.user_name} wants movies with vibes: {vibes}"
-        prompt += f"users are having a meeting that is {self.meeting_type}"
+            vibes = ", ".join(user.personal_vibe.vibes) if user.personal_vibe.vibes else "all"
+            prompt += f"user: {user.user_name} wants movies with vibes: {vibes}\n"
+        prompt += f"meeting type: {self.meeting_type}\n"
+        if conflict:
+            prompt += "NOTE: users have very different tastes. Pick a film nobody will regret, not one person will love."
         return prompt
-
+ 
     def _get_time(self) -> tuple[int, int]:
         """
         Zwraca (recommended_time, min_time) na podstawie preferencji użytkowników.

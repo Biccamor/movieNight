@@ -3,6 +3,8 @@ from sqlmodel import select
 from flashrank import RerankRequest
 import scripts.dependencies as d
 import asyncio
+import random 
+
 def create_vector(prompt:list | str):
     
     embedding = d.model.encode(prompt, 
@@ -22,6 +24,7 @@ async def reranker(prompt, top_movies: list, limit_movies:int = 25):
         }
         for i, m in enumerate(top_movies)
     ]
+    random.shuffle(passages)
     # reranker 
     request = RerankRequest(query=prompt, passages=passages)
     results = await asyncio.to_thread(d.reranker.rerank, request)
