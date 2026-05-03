@@ -24,7 +24,6 @@ async def reranker(prompt, top_movies: list, limit_movies:int = 25):
         }
         for i, m in enumerate(top_movies)
     ]
-    random.shuffle(passages)
     # reranker 
     request = RerankRequest(query=prompt, passages=passages)
     results = await asyncio.to_thread(d.reranker.rerank, request)

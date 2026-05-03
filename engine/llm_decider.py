@@ -69,7 +69,6 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
         for m in rerank
     ])
 
-    t4 = time.perf_counter()
     response = await client.chat(
         model="qwen2.5:3b",
         messages=[
@@ -83,6 +82,7 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
     )
     
     llm_result = LlmOutput.model_validate_json(response.message.content)  # type: ignore
+    t4 = time.perf_counter()
     logger.info(f"llm took {t4-t3}")
 
     # mapujemy dane z bazy (poster, rok, gatunki) — LLM ich nie zna, tylko tytuły
