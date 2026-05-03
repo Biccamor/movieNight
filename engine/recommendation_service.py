@@ -35,7 +35,10 @@ class RecomService:
 
         agent_prompt = self._create_user_prompts()
         prompts = [p for p, _ in agent_prompt]
-        vector = create_vector(prompts)
+        weights = [w for _, w in agent_prompt]
+        vectors = create_vector(prompts)
+
+        group_vector = self._build_group_vector(vectors, weights)
 
         session_id = uuid4()
         new_group = Room_Session(
@@ -46,7 +49,7 @@ class RecomService:
             allow_seen=users_seen,
             preferences=preferences_excluded,
             users_in_session=user_id_list,
-            embedding_preferences=vector,
+            embedding_preferences=group_vector,
         )
 
         self.session.add(new_group)
@@ -75,6 +78,26 @@ class RecomService:
             prompt += "NOTE: users have very different tastes. Pick a film nobody will regret, not one person will love."
         return prompt
  
+    def _build_group_vector(self, vectors: list, weights:list):
+        w = np.array(weights, dtype=float)
+        w /= w.sum() # zamieniamy kazdą ilość na procent tego jak pozadany jest dany gatunek
+        w = w[:, None] # zmienamy rozmiar na (1,1024)
+        v = np.array(vectors)
+        group_vector = (v*w).sum(axis=0) 
+        group_vector /= np.linalg.norm(group_vector) # normalizacja dlugosci
+        return group_vector.tolist()
+    
+    def _detect_conflict(self, vectors: list) -> bool:
+        if len(vectors) < 2:
+            return False
+        v = np.array(vectors)
+        v = v / np.linalg.norm(v, axis=1, keepdims=True)
+        sim_matrix = v @ v.T
+        np.fill_diagonal(sim_matrix, 1.0)
+        
+        avg_sim = (sim_matrix.sum() - len(vectors)) / (len(vectors) * (len(vectors) - 1))
+        return avg_sim < 0.65
+    
     def _get_time(self) -> tuple[int, int]:
         """
         Zwraca (recommended_time, min_time) na podstawie preferencji użytkowników.
