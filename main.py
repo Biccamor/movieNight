@@ -32,14 +32,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler) # type: ignore
-
-app.include_router(recommendation_router)
-app.include_router(auth_router)
-app.include_router(metadata_router)
-app.include_router(preference_router)
-
-
-
 origins = [
     "https://groupmovie.com",
     "http://localhost",
@@ -53,6 +45,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(recommendation_router)
+app.include_router(auth_router)
+app.include_router(metadata_router)
+app.include_router(preference_router)
+
+
 
 @app.get("/")
 async def main():

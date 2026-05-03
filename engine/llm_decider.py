@@ -1,13 +1,15 @@
-from ollama import Client
+from ollama import AsyncClient
 from engine.prompts import AGENT_SYSTEM_PROMPT
 from engine.vector import hybrid_search, reranker
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date
 import os
-import time
+import time, random
+import logging
 
-client = Client(host=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
+logger = logging.getLogger(__name__)
+client = AsyncClient(host=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
 
 # ── Schematy dla LLM (tylko to co model może znać) ──────────────────────────
 
@@ -45,10 +47,12 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
     t1 = time.perf_counter()
     top_search = await hybrid_search(query, runtime, session, rating_weight, limit_movies)
     t2 = time.perf_counter()
-    print(f"hybrid serach took {t2-t1}")
+    logger.info(f"hybrid serach took {t2-t1}")
     rerank = await reranker(prompt, top_search, limit_movies=20)
     t3 = time.perf_counter()
-    print(f"rerank took {t3-t2}")
+    logger.info(f"rerank took {t3-t2}")
+
+    random.shuffle(rerank)
     movie_lookup = {m['movie'].title: m['movie'] for m in rerank}
     # case-insensitive lookup — LLM często zwraca tytuł z inną wielkością liter
     movie_lookup_lower = {k.lower(): v for k, v in movie_lookup.items()}
@@ -56,7 +60,7 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
     def find_movie(title: str):
         """Szuka filmu po tytule — najpierw exact, potem case-insensitive."""
         return movie_lookup.get(title) or movie_lookup_lower.get(title.lower())
-
+    
     movies_str = "\n".join([
         f"- {m['movie'].title} | "
         f"{', '.join(m['movie'].genre or [])} | "
@@ -64,8 +68,8 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
         f"{m['movie'].description[:150]}"
         for m in rerank
     ])
-    t4 = time.perf_counter()
-    response = client.chat(
+
+    response = await client.chat(
         model="qwen2.5:3b",
         messages=[
             {'role': 'system', 
@@ -78,7 +82,8 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
     )
     
     llm_result = LlmOutput.model_validate_json(response.message.content)  # type: ignore
-    print(f"llm took {t4-t3}")
+    t4 = time.perf_counter()
+    logger.info(f"llm took {t4-t3}")
 
     # mapujemy dane z bazy (poster, rok, gatunki) — LLM ich nie zna, tylko tytuły
     matched = movie_lookup.get(llm_result.movie_title)
