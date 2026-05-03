@@ -3,6 +3,8 @@ from sqlmodel import select
 from flashrank import RerankRequest
 import scripts.dependencies as d
 import asyncio
+import random 
+
 def create_vector(prompt:list | str):
     
     embedding = d.model.encode(prompt, 
