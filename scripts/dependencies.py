@@ -19,7 +19,7 @@ def load_model():
 
 def load_reranker():
     global reranker
-    reranker = Ranker(model_name="ms-marco-MiniLM-L-12-v2", cache_dir="/home/appuser/.cache/flashrank")
+    reranker = Ranker(model_name="ms-marco-MiniLM-L-12-v2")
 
 def load_db():
     global engine 
