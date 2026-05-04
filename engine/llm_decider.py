@@ -77,14 +77,21 @@ async def decide(session, query, runtime: int, prompt: str, rating_weight: float
         f"{m['movie'].description[:150]}"
         for m in rerank
     ])
+    user_prompt = f"""
+    Candidates:
+    {movies_str}
+
+    Group preferences: {prompt}
+    Output:
+    """
 
     response = await client.chat(
         model="qwen2.5:3b",
         messages=[
             {'role': 'system', 
-             'content': AGENT_SYSTEM_PROMPT.replace("{group_preferences_input}", prompt)},
+             'content': AGENT_SYSTEM_PROMPT},
             {'role': 'user', 
-             'content': f"Movies you can choose from:\n{movies_str}\n{prompt}"}
+             'content': user_prompt}
         ],
         options={"temperature": 0.25, "top_p": 0.9},
         format=LlmOutput.model_json_schema()   # LLM dostaje schemat BEZ poster_path i release_date

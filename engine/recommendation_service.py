@@ -59,15 +59,20 @@ class RecomService:
 
         return session_id
 
-    def _create_user_prompts(self) -> list[tuple[str, int]]:
-        """Zwraca listę (prompt, weight) gdzie weight = liczba vibów"""
+    def _create_user_prompts(self) -> list[tuple[str, float]]:
         result = []
         for user in self.user_list:
             vibes = user.personal_vibe.vibes
             if not vibes:
                 continue
-            prompt = f"movie vibes: {', '.join(vibes)}, meeting type: {self.meeting_type}"
-            result.append((prompt, len(vibes)))
+            
+            # Tworzymy naturalne zdanie, które modele wektorowe uwielbiają
+            vibes_str = " and ".join(vibes).lower().replace("_", " ") 
+            # "ADRENALINE, MIND_BENDER" zmieni się w "adrenaline and mind bender"
+            
+            prompt = f"A {self.meeting_type} movie that is full of {vibes_str}. It has a plot focusing on {vibes_str}."
+            
+            result.append((prompt, 1.0))
         return result
     
     def _create_prompt(self, conflict: bool) -> str:
@@ -97,7 +102,7 @@ class RecomService:
         sim_matrix = v @ v.T
         np.fill_diagonal(sim_matrix, 1.0)
         
-        avg_sim = (sim_matrix.sum() - len(vectors)) / (len(vectors) * (len(vectors) - 1))
+        avg_sim = (sim_matrix.sum() - len(vectors)) / (len(vectors) * (len(vectors) - 1)) # claude ugotowal z tym wzorem
         return avg_sim < 0.65
     
     def _get_time(self) -> tuple[int, int]:

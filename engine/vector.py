@@ -31,10 +31,10 @@ async def reranker(prompt, top_movies: list, limit_movies:int = 25):
     reranked = [top_movies[r["id"]] for r in results[:limit_movies]] # bierzemy z top movies topowe filmy wedlug rerankera wiec jest tam poster_path etc
     return reranked
 
-async def hybrid_search(query_vector: list[float],max_runtime: int, session,  rating_weight: float = 0.25, limit_movies: int = 50) -> list:
+async def hybrid_search(query_vector: list[float],max_runtime: int, session,  rating_weight: float = 0.15, limit_movies: int = 50) -> list:
     
 
-    rating_penalty = (10.0 - Movie.rating) / 10.0 
+    rating_penalty = (10.0 -Movie.rating) / 10.0 
     # tym mniejszy hybrid_score tym lepiej, tym gorsza ocena tym dodatkowo "dalej" od idealnego filmu 0.0
     hybrid_score = (Movie.embedding.cosine_distance(query_vector) + (rating_weight * rating_penalty)).label("score") # type: ignore
 
