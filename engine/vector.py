@@ -1,10 +1,9 @@
 from database.database_setup import Movie
-from sqlmodel import select
+from sqlmodel import select,cast,String
 from flashrank import RerankRequest
 import scripts.dependencies as d
 import asyncio
-import random 
-
+from sqlalchemy import case 
 def create_vector(prompt:list | str):
     
     embedding = d.model.encode(prompt, 
@@ -36,7 +35,16 @@ async def hybrid_search(query_vector: list[float],max_runtime: int, session,  ra
 
     rating_penalty = (10.0 -Movie.rating) / 10.0 
     # tym mniejszy hybrid_score tym lepiej, tym gorsza ocena tym dodatkowo "dalej" od idealnego filmu 0.0
+    # ANIMATION_TAX = 0.09
+    
+    # animation_penalty = case(
+    #     # Rzutujemy kolumnę na zwykły tekst i szukamy "%Animation%" wewnątrz
+    #     (cast(Movie.genre, String).ilike("%Animation%"), ANIMATION_TAX), 
+    #     else_=0.0
+    # )
+
     hybrid_score = (Movie.embedding.cosine_distance(query_vector) + (rating_weight * rating_penalty)).label("score") # type: ignore
+
 
     statement = (
         select(Movie, hybrid_score)
