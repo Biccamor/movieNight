@@ -15,3 +15,51 @@ Candidates: 1. Shrek | comedy  2. Interstellar | sci-fi
 Group vibes: wants comedy and chill
 Output: {"movie_title": "Shrek", "reasoning": "Shrek is a great comedy with humor, perfetct for chill night for a group.", "extra_movies": [{"movie_title": "Interstellar"}]}
 """
+
+
+VIBE_MAP = {
+    "PIZZA_CHILL": {
+        "genres": ["Comedy", "Adventure", "Action"],
+        "keywords": "lighthearted, easy to watch, fun, casual, entertaining, feel-good, popcorn movie, buddy cop"
+    },
+    "MIND_BENDER": {
+        "genres": ["Science Fiction", "Mystery", "Thriller"],
+        "keywords": "plot twist, psychological, confusing reality, mind-bending, complex timeline, suspense, puzzle"
+    },
+    "ADRENALINE": {
+        "genres": ["Action", "Thriller", "Crime"],
+        "keywords": "fast-paced, chases, explosions, high stakes, intense survival, martial arts, shootout"
+    },
+    "DATE_NIGHT": {
+        "genres": ["Romance", "Comedy", "Drama"],
+        "keywords": "romantic, chemistry, love story, charming, relationship, sweet, romantic comedy"
+    },
+    "DEEP_FEELS": {
+        "genres": ["Drama", "Romance"],
+        "keywords": "emotional, heartbreaking, moving, thought-provoking, human connection, tearjerker, sad, tragic"
+    },
+    "LAUGH_RIOT": {
+        "genres": ["Comedy"],
+        "keywords": "hilarious, laugh out loud, slapstick, funny, jokes, satire, spoof, pure comedy"
+    },
+    "SPINE_CHILLING": {
+        "genres": ["Horror", "Mystery", "Thriller"],
+        "keywords": "terrifying, dark atmosphere, creepy, supernatural, serial killer, jump scares, sinister, scary"
+    },
+    "NOSTALGIA": {
+        "genres": ["Family", "Adventure", "Fantasy"],
+        "keywords": "retro, 80s, 90s, classic, childhood memories, coming of age, throwback, old school"
+    },
+    "INSPIRING": {
+        "genres": ["Drama", "History", "Biography"],
+        "keywords": "uplifting, motivational, overcoming adversity, true story, triumph, hope, hero, underdog"
+    },
+    "EPIC_JOURNEY": {
+        "genres": ["Adventure", "Fantasy", "Science Fiction"],
+        "keywords": "grand scale, quest, world-building, epic, hero's journey, sprawling, mythology, chosen one"
+    },
+    "GUILTY_PLEASURE": {
+        "genres": ["Comedy", "Action", "Horror", "Romance"],
+        "keywords": "cheesy, campy, over-the-top, so bad it's good, predictable but fun, cult classic, teen drama"
+    }
+}
