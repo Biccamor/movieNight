@@ -8,6 +8,7 @@ async def get_preferences_options():
     Returns available movie genres and eras for the preferences selection.
     """
     vibes = [
+        "AMBITIOUS",
         "PIZZA_CHILL",
         "MIND_BENDER",
         "ADRENALINE",

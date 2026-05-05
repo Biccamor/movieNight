@@ -4,7 +4,7 @@ from flashrank import RerankRequest
 import scripts.dependencies as d
 import asyncio
 from sqlalchemy import case 
-def create_vector(prompt:list | str):
+async def create_vector(prompt:list | str):
     
     embedding = d.model.encode(prompt, 
                             batch_size=20, 

@@ -18,6 +18,10 @@ Output: {"movie_title": "Shrek", "reasoning": "Shrek is a great comedy with humo
 
 
 VIBE_MAP = {
+    "AMBITIOUS": {
+        "genres": ["Drama", "Mystery", "Thriller"], 
+        "keywords": "arthouse, intellectual, thought-provoking, complex plot, slow-burn, philosophical, masterpiece, auteur, cerebral, wymagające kino, głęboki"
+    },
     "PIZZA_CHILL": {
         "genres": ["Comedy", "Adventure", "Action"],
         "keywords": "lighthearted, easy to watch, fun, casual, entertaining, feel-good, popcorn movie, buddy cop"
@@ -43,9 +47,8 @@ VIBE_MAP = {
         "keywords": "hilarious, laugh out loud, slapstick, funny, jokes, satire, spoof, pure comedy"
     },
     "SPINE_CHILLING": {
-        "genres": ["Horror", "Mystery", "Thriller"],
-        "keywords": "terrifying, dark atmosphere, creepy, supernatural, serial killer, jump scares, sinister, scary"
-    },
+        "genres": ["Horror", "Horror", "Mystery", "Thriller"],
+        "keywords": "HORROR, terrifying, dark atmosphere, jump scares, pure HORROR, scary, sinister, macabre, supernatural horror, ghost story, demon"    },
     "NOSTALGIA": {
         "genres": ["Family", "Adventure", "Fantasy"],
         "keywords": "retro, 80s, 90s, classic, childhood memories, coming of age, throwback, old school"

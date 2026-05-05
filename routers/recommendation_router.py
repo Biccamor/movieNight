@@ -19,7 +19,7 @@ async def save_session(request: Request, meta_data: MovieSession, user: dict = D
     Lekki endpoint nie wywołuje modeli AI.
     """
     recom_service = RecomService(meta_data, session)
-    session_id = recom_service._add_db()
+    session_id = await recom_service._add_db()
     return {"session_id": str(session_id)}
 
 

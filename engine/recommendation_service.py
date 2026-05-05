@@ -4,7 +4,7 @@ from uuid import uuid4, UUID
 import numpy as np
 from engine.vector import create_vector, hybrid_search
 from engine.llm_decider import decide
-
+from engine.prompts import VIBE_MAP
 
 class RecomService:
 
@@ -15,7 +15,7 @@ class RecomService:
         self.user_list = self.meta_data.users
         self.preferences = self.meta_data.final_preferences
 
-    def _add_db(self) -> UUID:
+    async def _add_db(self) -> UUID:
         """
         Zapisuje sesję do bazy danych i zwraca session_id.
         Nie wywołuje AI – jest szybki.
@@ -36,7 +36,7 @@ class RecomService:
         agent_prompt = self._create_user_prompts()
         prompts = [p for p, _ in agent_prompt]
         weights = [w for _, w in agent_prompt]
-        vectors = create_vector(prompts)
+        vectors = await create_vector(prompts)
 
         group_vector = self._build_group_vector(vectors, weights)
         conflict = self._detect_conflict(vectors)
@@ -60,26 +60,50 @@ class RecomService:
         return session_id
 
     def _create_user_prompts(self) -> list[tuple[str, float]]:
+        genre_data = {}
+        for user in self.user_list: 
+            for vibe in user.personal_vibe.vibes:
+                vibe_info = VIBE_MAP.get(vibe)
+                if not vibe_info: continue
+                
+                for genre in vibe_info["genres"]:
+                    if genre not in genre_data:
+                        genre_data[genre] = {"count": 0, "keywords": set()}
+                    genre_data[genre]["count"] += 1
+                    
+                    kw_list = [k.strip() for k in vibe_info["keywords"].split(",")]
+                    genre_data[genre]["keywords"].update(kw_list)
+
         result = []
-        for user in self.user_list:
-            vibes = user.personal_vibe.vibes
-            if not vibes:
-                continue
+        for genre, data in genre_data.items():
+            keywords_str = ", ".join(sorted(data["keywords"]))
+            prompt = f"A {self.meeting_type} movie in the {genre} genre, featuring: {keywords_str}. It has a plot focusing on these elements."
+            result.append((prompt, float(data["count"])))
             
-            # Tworzymy naturalne zdanie, które modele wektorowe uwielbiają
-            vibes_str = " and ".join(vibes).lower().replace("_", " ") 
-            # "ADRENALINE, MIND_BENDER" zmieni się w "adrenaline and mind bender"
-            
-            prompt = f"A {self.meeting_type} movie that is full of {vibes_str}. It has a plot focusing on {vibes_str}."
-            
-            result.append((prompt, 1.0))
         return result
     
     def _create_prompt(self, conflict: bool) -> str:
         prompt = ""
         for user in self.user_list:
-            vibes = ", ".join(user.personal_vibe.vibes) if user.personal_vibe.vibes else "all"
-            prompt += f"user: {user.user_name} wants movies with vibes: {vibes}\n"
+            vibes = user.personal_vibe.vibes
+            if not vibes:
+                prompt += f"user: {user.user_name} wants all kinds of movies\n"
+                continue
+            
+            user_genres = {}
+            user_keywords = set()
+            for v in vibes:
+                v_info = VIBE_MAP.get(v)
+                if v_info:
+                    for g in v_info["genres"]:
+                        user_genres[g] = user_genres.get(g, 0) + 1
+                    user_keywords.update([k.strip() for k in v_info["keywords"].split(",")])
+            
+            genres_list = [f"{g} (x{count})" if count > 1 else g for g, count in user_genres.items()]
+            genres_str = ", ".join(sorted(genres_list))
+            keywords_str = ", ".join(sorted(user_keywords))
+            prompt += f"user: {user.user_name} wants {genres_str} movies with elements like: {keywords_str}\n"
+            
         prompt += f"meeting type: {self.meeting_type}\n"
         if conflict:
             prompt += "NOTE: users have very different tastes. Pick a film nobody will regret, not one person will love."
@@ -126,14 +150,39 @@ class RecomService:
         vector = db_session.embedding_preferences
         max_runtime = max(db_session.recomended_runtime or 120, db_session.min_runtime or 90)
 
+        group_genres = {}
+        group_keywords = set()
+
         users_info = ""
         for u in (db_session.preferences or []):
-            vibes = ", ".join(u.get("personal_vibe", {}).get("vibes", []))
-            users_info += f"user: {u.get('user_name', 'unknown')} wants movies with vibes: {vibes}\n"
+            vibes = u.get("personal_vibe", {}).get("vibes", [])
+            if not vibes:
+                users_info += f"user: {u.get('user_name', 'unknown')} wants all kinds of movies\n"
+                continue
+            
+            user_genres = {}
+            user_keywords = set()
+            for v in vibes:
+                v_info = VIBE_MAP.get(v)
+                if v_info:
+                    for g in v_info["genres"]:
+                        user_genres[g] = user_genres.get(g, 0) + 1
+                        group_genres[g] = group_genres.get(g, 0) + 1
+                    kw_list = [k.strip() for k in v_info["keywords"].split(",")]
+                    user_keywords.update(kw_list)
+                    group_keywords.update(kw_list)
+            
+            genres_list = [f"{g} (x{count})" if count > 1 else g for g, count in user_genres.items()]
+            genres_str = ", ".join(sorted(genres_list))
+            keywords_str = ", ".join(sorted(user_keywords))
+            users_info += f"user: {u.get('user_name', 'unknown')} wants {genres_str} movies with elements like: {keywords_str}\n"
+            
         users_info += f"meeting type: {db_session.occasion}\n"
         if db_session.conflict:
             users_info += "NOTE: users have very different tastes. Pick a film nobody will regret, not one person will love."
 
+        all_genres = [g for g, _ in sorted(group_genres.items(), key=lambda x: x[1], reverse=True)]
+        reranker_query = f"A {db_session.occasion} movie featuring genres: {', '.join(all_genres)}. Elements and vibes: {', '.join(group_keywords)}."
 
-        recommendations = await decide(session, vector, max_runtime, users_info)
+        recommendations = await decide(session, vector, max_runtime, users_info, reranker_query)
         return recommendations

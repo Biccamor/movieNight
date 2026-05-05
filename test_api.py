@@ -56,7 +56,7 @@ def create_session(token: str, user_id: str) -> str:
                 "user_id": user_id,
                 "user_name": "Tester",
                 "personal_vibe": {
-                    "vibes": ["ADRENALINE", "SPINE_CHILLING"],
+                    "vibes": ["AMBITIOUS", "SPINE_CHILLING"],
                     "hard_nos": [],
                     "max_runtime": 150,
                     "allow_seen": False,
