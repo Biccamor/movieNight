@@ -6,6 +6,7 @@ import sys
 sys.stdout.reconfigure(encoding='utf-8')  # fix Windows CP1250
 import requests
 import json
+import uuid
 
 BASE = "http://localhost:8010"
 
@@ -56,9 +57,31 @@ def create_session(token: str, user_id: str) -> str:
                 "user_id": user_id,
                 "user_name": "Tester",
                 "personal_vibe": {
-                    "vibes": ["AMBITIOUS", "SPINE_CHILLING"],
+                    "vibes": ["ADRENALINE", "SPINE_CHILLING"],
                     "hard_nos": [],
                     "max_runtime": 150,
+                    "allow_seen": False,
+                    "eras": []
+                }
+            },
+            {
+                "user_id": str(uuid.uuid4()),
+                "user_name": "Alice",
+                "personal_vibe": {
+                    "vibes": ["AMBITIOUS", "SPINE_CHILLING"],
+                    "hard_nos": [],
+                    "max_runtime": 120,
+                    "allow_seen": True,
+                    "eras": []
+                }
+            },
+            {
+                "user_id": str(uuid.uuid4()),
+                "user_name": "Bob",
+                "personal_vibe": {
+                    "vibes": ["MIND_BENDER", "AMBITIOUS"],
+                    "hard_nos": [],
+                    "max_runtime": 180,
                     "allow_seen": False,
                     "eras": []
                 }

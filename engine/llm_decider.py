@@ -1,7 +1,7 @@
 from ollama import AsyncClient
 from engine.prompts import AGENT_SYSTEM_PROMPT
 from engine.vector import hybrid_search, reranker
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import date
 import os
@@ -22,8 +22,8 @@ class LlmOutput(BaseModel):
     """Schemat odpowiedzi LLM — bez poster_path i release_date (LLM ich nie zna)."""
     thought: str
     movie_title: str
-    reasoning_pl: str
-    extra_movies: list[LlmExtraMovie]
+    reasoning: str = Field(..., description="Description of reasoning in English")
+    extra_movies: list[LlmExtraMovie] =  Field(..., description="EXACTLY TWO alternate movies", min_length= 2, max_length=2)
     genres: list[str]
 
 # ── Schematy odpowiedzi API (z danymi z bazy) ────────────────────────────────
@@ -40,7 +40,7 @@ class MovieRecommendation(BaseModel):
     thought: str
     movie_title: str
     reasoning_pl: str
-    extra_movies: list[ExtraMovie]
+    extra_movies: list[ExtraMovie] 
     poster_path: str
     genres: list[str]
     release_date: Optional[date] = None   # mapowane z bazy po tytule
@@ -106,7 +106,7 @@ async def decide(session, query, runtime: int, llm_prompt: str, reranker_query: 
     result = MovieRecommendation(
         thought=llm_result.thought,
         movie_title=llm_result.movie_title,
-        reasoning_pl=llm_result.reasoning_pl,
+        reasoning_pl=llm_result.reasoning,
         extra_movies=[],
         poster_path=matched.poster_path or '' if matched else '',
         genres=matched.genre or [] if matched else llm_result.genres,

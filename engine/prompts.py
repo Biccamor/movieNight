@@ -3,17 +3,18 @@ Respond EXACTLY with this JSON structure and write the reasoning in English:
 
 {
   "movie_title": "title exactly as in the list",
-  "reasoning": "2-3 sentences in english that explain why you chose the movie for this group",
+  "reasoning": "2-3 sentences in english that explain why you chose the movie for this group MUST BE BASED ON DESCRIPTION AND TAGS",
   "extra_movies": [
-    {"movie_title": "title exactly as in the list"},
-    {"movie_title": "title exactly as in the list"}
+    {"movie_title": "different title exactly as in the list"},
+    {"movie_title": "another different title exactly as in the list"}
   ]
 }
+IMPORTANT: The extra_movies list MUST contain EXACTLY 2 movies. They MUST NOT be the same as the main movie_title.
 
 Example:
-Candidates: 1. Shrek | comedy  2. Interstellar | sci-fi
+Candidates: 1. Shrek | comedy  2. Interstellar | sci-fi  3. The Matrix | action
 Group vibes: wants comedy and chill
-Output: {"movie_title": "Shrek", "reasoning": "Shrek is a great comedy with humor, perfetct for chill night for a group.", "extra_movies": [{"movie_title": "Interstellar"}]}
+Output: {"movie_title": "Shrek", "reasoning": "Shrek is a great comedy with humor, perfect for chill night for a group.", "extra_movies": [{"movie_title": "Interstellar"}, {"movie_title": "The Matrix"}]}
 """
 
 
