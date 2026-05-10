@@ -68,3 +68,25 @@ class Rating(SQLModel, table=True):
     rated_at: date | None = Field(default_factory=date.today)
     # -1 = dislike 0 = have seen no opinion 1 = like 
     rating: int = Field(default=0, index=True) 
+
+
+class MovieSessionDB(SQLModel, table=True):
+    """
+    Tabela sesji filmowej — pełny cykl życia od lobby do rekomendacji.
+    Host tworzy sesję → członkowie dołączają kodem → podają preferencje →
+    host wywołuje rekomendacje → wyniki widoczne dla wszystkich.
+    """
+    __tablename__ = "movie_session"  # type: ignore
+
+    session_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    host_id: UUID = Field(foreign_key="app_user.user_id", index=True)
+    invite_code: str = Field(unique=True, index=True)
+
+    meeting_type: str = Field(index=True)  # RANDKA / EKIPA / RODZINA / SOLO
+    status: str = Field(default="LOBBY", index=True)  # LOBBY / ALL_READY / RECOMMENDING / COMPLETED
+
+    members: list[dict] | None = Field(default_factory=list, sa_column=Column(JSONB))
+    recommendations: list[dict] | None = Field(default=None, sa_column=Column(JSONB))
+
+    room_session_id: UUID | None = Field(default=None, foreign_key="room_session.session_id")
+    created_at: date | None = Field(default_factory=date.today)

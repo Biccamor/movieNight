@@ -15,7 +15,7 @@ router = APIRouter(prefix="/preferences", tags=['preferences'])
 @limiter.limit("10/minute")  # zapis preferencji — umiarkowany limit
 async def save_preferences(request: Request, data: SavedPreferences, user_id: UUID, user_token: dict = Depends(get_current_user), session = Depends(get_session)):
     
-    if user_id != user_token["user_id"]:
+    if str(user_id) != str(user_token["user_id"]):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Nie możesz modyfikować preferencji innego użytkownika"

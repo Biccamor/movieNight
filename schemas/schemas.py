@@ -84,3 +84,38 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
+
+# ─── Sesja filmowa ───────────────────────────────────────────────────
+
+MeetingType = Literal["RANDKA", "EKIPA", "RODZINA", "SOLO"]
+MemberStatus = Literal["pending", "ready"]
+
+class CreateSessionRequest(BaseModel):
+    """Request od hosta — tworzy nową sesję."""
+    meeting_type: MeetingType
+
+class JoinSessionRequest(BaseModel):
+    """Request od członka — dołącza do sesji kodem zaproszenia."""
+    invite_code: str = Field(min_length=1, max_length=10)
+
+class MemberPreferencesRequest(BaseModel):
+    """Request od członka — podaje swoje preferencje na tę sesję."""
+    preferences: Preferences
+
+class SessionMemberResponse(BaseModel):
+    """Widok członka sesji w odpowiedzi API."""
+    user_id: UUID
+    user_name: str
+    status: MemberStatus
+    preferences: Optional[Preferences] = None
+
+class SessionResponse(BaseModel):
+    """Pełny widok sesji — dla hosta i członków."""
+    session_id: UUID
+    host_id: UUID
+    invite_code: str
+    meeting_type: MeetingType
+    status: str  # LOBBY / ALL_READY / RECOMMENDING / COMPLETED
+    members: List[SessionMemberResponse]
+    recommendations: Optional[List[dict]] = None
+    created_at: Optional[str] = None

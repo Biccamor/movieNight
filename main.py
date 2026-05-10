@@ -3,6 +3,7 @@ from routers.recommendation_router import router as recommendation_router
 from routers.auth_router import router as auth_router
 from routers.metadata_router import router as metadata_router
 from routers.preference_router import router as preference_router
+from routers.session_router import router as session_router
 import time
 import logging
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,6 +51,7 @@ app.include_router(recommendation_router)
 app.include_router(auth_router)
 app.include_router(metadata_router)
 app.include_router(preference_router)
+app.include_router(session_router)
 
 
 

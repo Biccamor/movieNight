@@ -15,11 +15,13 @@ async def create_vector(prompt:list | str):
     return embedding_list
 
 async def reranker(prompt, top_movies: list, limit_movies:int = 25):
+    if not top_movies:
+        return []
 
     passages = [
         {
             "id": i,
-            "text": f"{m['movie'].title} | {', '.join(m['movie'].genre or [])} | {', '.join((m['movie'].tags or []))} | {m['movie'].description[:300]}"
+            "text": f"{m['movie'].title} | {', '.join(m['movie'].genre or [])} | {', '.join((m['movie'].tags or []))} | {(m['movie'].description or '')[:300]}"
         }
         for i, m in enumerate(top_movies)
     ]
