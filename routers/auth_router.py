@@ -82,17 +82,16 @@ async def refresh_access_token(request: Request, data: RefreshRequest):
 
 @router.delete("/delete", summary="Usuń konto")
 @limiter.limit("1/minute")
-async def delete_account(request: Request, data: RefreshRequest):
+async def delete_account(request: Request, data: RefreshRequest, session = Depends(get_session)):
     """
     Usuwa konto użytkownika.
     """
     payload = verify_refresh_token(data.refresh_token)
     user_id = payload["user_id"]
 
-    with Session(engine) as session:
-        user = session.get(User, user_id)
-        if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-        session.delete(user)
-        session.commit()
-        return {"message": "Account deleted successfully"}
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    session.delete(user)
+    session.commit()
+    return {"message": "Account deleted successfully"}
