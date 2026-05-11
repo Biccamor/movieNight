@@ -34,6 +34,11 @@ class RecomService:
         ]
 
         agent_prompt = self._create_user_prompts()
+        
+        # Jeśli użytkownicy nie podali żadnych preferencji (lub są puste), używamy domyślnego promptu
+        if not agent_prompt:
+            agent_prompt = [(f"A {self.meeting_type} movie.", 1.0)]
+            
         prompts = [p for p, _ in agent_prompt]
         weights = [w for _, w in agent_prompt]
         vectors = await create_vector(prompts)
@@ -178,7 +183,7 @@ class RecomService:
             users_info += f"user: {u.get('user_name', 'unknown')} wants {genres_str} movies with elements like: {keywords_str}\n"
             
         users_info += f"meeting type: {db_session.occasion}\n"
-        if db_session.conflict:
+        if getattr(db_session, 'conflict', False):
             users_info += "NOTE: users have very different tastes. Pick a film nobody will regret, not one person will love."
 
         all_genres = [g for g, _ in sorted(group_genres.items(), key=lambda x: x[1], reverse=True)]

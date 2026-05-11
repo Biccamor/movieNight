@@ -1,0 +1,325 @@
+══════════════════════════════════════════════════════════════════════
+  movieNight — Wyniki scenariuszy testowych
+  Data:    2026-05-10 18:12:53
+  Backend: http://localhost:8010
+  Scenariuszy: 20
+══════════════════════════════════════════════════════════════════════
+
+======================================================================
+  REJESTRACJA I LOGOWANIE
+======================================================================
+  Email: scenario_runner_df7d68b0@test.pl
+  ✅ Rejestracja OK: {'message': 'Account created successfully', 'user_id': '766a9d4d-4413-44c4-8c1e-09881dbc68a6'}
+  ✅ Login OK — user_id: 766a9d4d-4413-44c4-8c1e-09881dbc68a6
+======================================================================
+
+
+──────────────────────────────────────────────────────────────────────
+  [ 1/20] solo_pizza_chill
+  Typ: SOLO  |  Userzy: Tomek
+  Opis: Jedna osoba, wieczór z pizzą, nic wymagającego
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: fa0c49f1-579e-42b0-b5ad-fec1f21f00b5  (6.78s)
+  → POST /recommendation/fa0c49f1-579e-42b0-b5ad-fec1f21f00b5 ...
+  ✅ Rekomendacja OK  (124.32s)
+
+  🎬 GŁÓWNY FILM: The Lego Movie
+     Gatunki:     Animation, Family, Adventure, Comedy, Fantasy
+     Ocena:       7.42
+     Runtime:     100 min
+     Data:        2014-02-06
+     Poster:      https://image.tmdb.org/t/p/w500/lbctonEnewCYZ4FYoTZhs8cidAl.jpg
+
+  💭 THOUGHT:
+     Given the group's preference for action, adventure, comedy movies with elements like buddy cop and a lighthearted, easy-to-watch feel-good movie, I chose 'The Lego Movie' as it fits perfectly. It has humor, superhero themes, and an engaging storyline that appeals to both adults and children alike.
+
+  📝 REASONING:
+     The Lego Movie is a lighthearted, fun, and entertaining popcorn movie with elements like buddy cop (between the protagonist and his sidekick), superhero themes, and humor. It fits well within the group's preferences for action, adventure, comedy, and easy-to-watch movies.
+
+  🎥 ALTERNATYWY:
+     1. Nimona  (Animation, Family, Action, Adventure, Fantasy, Comedy)  ⭐7.9  🕐99min
+     2. The Nice Guys  (Comedy, Crime, Action)  ⭐7.128  🕐116min
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [ 2/20] solo_ambitious_cinephile
+  Typ: SOLO  |  Userzy: Marta
+  Opis: Samotny kinofile szukający czegoś wymagającego
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: aac9467a-88e1-400e-910c-73dfe7e262b9  (14.0s)
+  → POST /recommendation/aac9467a-88e1-400e-910c-73dfe7e262b9 ...
+  ✅ Rekomendacja OK  (122.58s)
+
+  🎬 GŁÓWNY FILM: The Prestige
+     Gatunki:     Drama, Mystery, Science Fiction
+     Ocena:       8.206
+     Runtime:     130 min
+     Data:        2006-10-17
+     Poster:      https://image.tmdb.org/t/p/w500/Ag2B2KHKQPukjH7WutmgnnSNurZ.jpg
+
+  💭 THOUGHT:
+     The Silence and The Prestige are both auteur-driven arthouse films with complex plots and philosophical themes. They fit the group's preference for Drama, Mystery, Science Fiction, Thriller elements.
+
+  📝 REASONING:
+     The Prestige is an arthouse film that explores themes of obsession, deceit, and jealousy through a complex plot involving two magicians vying for supremacy. It features mind-bending twists and philosophical questions, making it intellectually stimulating and thought-provoking.
+
+  🎥 ALTERNATYWY:
+     1. The Silence  (Horror, Drama, Thriller, Fantasy)  ⭐6.018  🕐91min
+     2. In the House  (Comedy, Drama, Mystery, Thriller)  ⭐7.237  🕐105min
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [ 3/20] solo_horror_night
+  Typ: SOLO  |  Userzy: Kasia
+  Opis: Samotna sesja horrorowa — krótki film
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: 8ed87a20-8514-467f-8425-61bf6e47fe8c  (10.52s)
+  → POST /recommendation/8ed87a20-8514-467f-8425-61bf6e47fe8c ...
+  ✅ Rekomendacja OK  (82.55s)
+
+  🎬 GŁÓWNY FILM: Strange Darling
+     Gatunki:     Horror, Thriller
+     Ocena:       6.9
+     Runtime:     97 min
+     Data:        2024-08-14
+     Poster:      https://image.tmdb.org/t/p/w500/kWNCRgt3ocv19bYO0sk7TRuZuFY.jpg
+
+  💭 THOUGHT:
+     Given the group's preference for Horror (x2), Mystery, and Thriller movies with elements like dark atmosphere, demon, ghost story, jump scares, macabre, pure HORROR, scary, sinister, supernatural horror, terrifying, I chose 'Strange Darling' as it fits well with their preferences. It is a gory, disturbing horror/thriller that involves rape, sadomasochism, and murder.
+
+  📝 REASONING:
+     Strange Darling fits the group's preference for Horror movies with elements like dark atmosphere, demon, ghost story, jump scares, macabre, pure HORROR, scary, sinister, supernatural horror, terrifying. It involves a twisted one-night stand that spirals into a serial killer’s vicious murder spree.
+
+  🎥 ALTERNATYWY:
+     1. Hush  (Horror, Thriller)  ⭐6.735  🕐82min
+     2. The Silence  (Horror, Drama, Thriller, Fantasy)  ⭐6.018  🕐91min
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [ 4/20] solo_nostalgia_trip
+  Typ: SOLO  |  Userzy: Piotr
+  Opis: Powrót do dzieciństwa — klasyki z lat 80/90
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: 9197f3a7-857f-4ed1-bc45-6afe7cc99659  (5.09s)
+  → POST /recommendation/9197f3a7-857f-4ed1-bc45-6afe7cc99659 ...
+  ✅ Rekomendacja OK  (93.88s)
+
+  🎬 GŁÓWNY FILM: The Lego Movie
+     Gatunki:     Animation, Family, Adventure, Comedy, Fantasy
+     Ocena:       7.42
+     Runtime:     100 min
+     Data:        2014-02-06
+     Poster:      https://image.tmdb.org/t/p/w500/lbctonEnewCYZ4FYoTZhs8cidAl.jpg
+
+  💭 THOUGHT:
+     Piotr enjoys adventure and family-friendly movies with elements like childhood memories. The Lego Movie fits his preferences as it's a live-action/animation hybrid that combines fantasy and comedy. It also has retro and throwback elements, which aligns well with the group’s SOLO meeting type.
+
+  📝 REASONING:
+     The Lego Movie is an adventure-packed family-friendly film that blends fantasy and comedy. Its retro and throwback elements resonate with Piotr's interests in classic movies and childhood memories. It also features a hero's journey, making it suitable for the SOLO meeting type.
+
+  🎥 ALTERNATYWY:
+     1. Puss in Boots: The Last Wish  (Animation, Adventure, Fantasy, Comedy, Family)  ⭐8.201  🕐103min
+     2. Back to the Future  (Adventure, Comedy, Science Fiction)  ⭐8.324  🕐116min
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [ 5/20] solo_no_preferences
+  Typ: SOLO  |  Userzy: Ghost
+  Opis: User nie podał żadnych vibes — system powinien dać coś domyślnego
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: 425de9c4-925e-4b3d-a329-f3371b785308  (0.78s)
+  → POST /recommendation/425de9c4-925e-4b3d-a329-f3371b785308 ...
+  ✅ Rekomendacja OK  (93.86s)
+
+  🎬 GŁÓWNY FILM: Solo Mio
+     Gatunki:     Romance, Comedy
+     Ocena:       7.1
+     Runtime:     96 min
+     Data:        2026-02-05
+     Poster:      https://image.tmdb.org/t/p/w500/efSsZJaddeq0LOABZqpCXdMxv9P.jpg
+
+  💭 THOUGHT:
+     Given the diverse nature of the candidate list and the preference for 'all kinds of movies', I chose a movie that covers multiple genres. 'Solo Mio' is a romantic comedy set in Italy, which seems to fit well with the user's request for variety. It also has an Italian setting, which could be appealing to some group members.
+
+  📝 REASONING:
+     Solo Mio is a romantic comedy that explores themes of love and romance during a honeymoon in Italy. This movie offers a mix of humor and emotion, catering to different tastes within the group's preference for 'all kinds of movies'. It also has an Italian setting which could be appealing.
+
+  🎥 ALTERNATYWY:
+     1. Léon: The Professional  (Crime, Drama, Action)  ⭐8.295  🕐111min
+     2. A Quiet Place: Day One  (Horror, Science Fiction, Thriller)  ⭐6.657  🕐100min
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [ 6/20] date_both_romantic
+  Typ: RANDKA  |  Userzy: Anna, Michał
+  Opis: Oboje chcą romantycznego wieczoru — harmonia
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: d0979da7-7e65-4046-bbe0-87de40e50429  (7.46s)   
+  → POST /recommendation/d0979da7-7e65-4046-bbe0-87de40e50429 ...
+  ✅ Rekomendacja OK  (110.22s)
+
+  🎬 GŁÓWNY FILM: Wonka
+     Gatunki:     Comedy, Family, Fantasy
+     Ocena:       7.041
+     Runtime:     117 min
+     Data:        2023-12-06
+     Poster:      https://image.tmdb.org/t/p/w500/qhb1qOilapbapxWQn9jtRCMwXJF.jpg
+
+  💭 THOUGHT:
+     I chose 'Wonka' because it fits the group's preference for a charming and emotional movie with elements like love story, romance, and humor. It also has a family-friendly vibe that could appeal to both Anna and Michał.
+
+  📝 REASONING:
+     Wonka is a great comedy-drama-fantasy film with chocolate, musical, prequel, duringcreditsstinger, cartel, joyous, amused elements. Willy Wonka – chock-full of ideas and determined to change the world one delectable bite at a time – is proof that the best things in life begin with chocolate.
+
+  🎥 ALTERNATYWY:
+     1. City Lights  (Comedy, Drama, Romance)  ⭐8.254  🕐87min
+     2. High School Musical  (Comedy, Drama, Family, Music, Romance, TV Movie)  ⭐6.5  🕐98min
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [ 7/20] date_romance_vs_action
+  Typ: RANDKA  |  Userzy: Ola, Bartek
+  Opis: Ona chce romcom, on chce adrenaliny — KONFLIKT
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: 200ef941-3e22-4407-9df8-2179d0cd2a5e  (23.72s)
+  → POST /recommendation/200ef941-3e22-4407-9df8-2179d0cd2a5e ...
+  ✅ Rekomendacja OK  (135.51s)
+
+  🎬 GŁÓWNY FILM: City Lights
+     Gatunki:     Comedy, Drama, Romance
+     Ocena:       8.254
+     Runtime:     87 min
+     Data:        1931-02-06
+     Poster:      https://image.tmdb.org/t/p/w500/bXNvzjULc9jrOVhGfjcc64uKZmZ.jpg
+
+  💭 THOUGHT:
+     Given the group's preferences for Comedy, Drama (x2), Romance (x2) movies with elements like emotional connection and love stories, 'City Lights' stands out as a perfect fit. It beautifully captures these themes through its charming story of a tramp who falls in love with a blind flower girl.
+
+  📝 REASONING:
+     City Lights is a heartwarming comedy-drama that explores the human connection and love between two very different individuals, making it an ideal choice for this group. Its black and white aesthetic adds to its comforting and charming nature.
+
+  🎥 ALTERNATYWY:
+     1. Closer  (Drama, Romance)  ⭐6.831  🕐104min
+     2. Hedda  (Drama, Thriller, Romance)  ⭐5.6  🕐107min
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [ 8/20] date_guilty_pleasure_harmony
+  Typ: RANDKA  |  Userzy: Zuzia, Dawid
+  Opis: Oboje lubią 'cringe' kino — idealna para
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: 27308766-6342-48bf-b8ce-a03711fbd5ae  (15.77s)
+  → POST /recommendation/27308766-6342-48bf-b8ce-a03711fbd5ae ...
+  ✅ Rekomendacja OK  (109.12s)
+
+  🎬 GŁÓWNY FILM: Punch-Drunk Love
+     Gatunki:     Romance, Drama, Comedy
+     Ocena:       7.102
+     Runtime:     96 min
+     Data:        2002-10-11
+     Poster:      https://image.tmdb.org/t/p/w500/htYp4yqFu4rzBEIa6j9jP8miDm3.jpg
+
+  💭 THOUGHT:
+     Given the group preferences of Zuzia and Dawid for action, comedy, horror, and romance movies with elements like campy, cheesy, cult classic, over-the-top, and so bad it's good, I have selected 'Punch-Drunk Love' as the main movie. It fits well with their interests in a buddy cop story that is both entertaining and lighthearted.
+
+  📝 REASONING:
+     Punch-Drunk Love is an over-the-top romantic comedy-drama that features elements like slapstick, humor, and campiness. It fits well with the group's preferences for a movie that is so bad it’s good, making it both entertaining and lighthearted.
+
+  🎥 ALTERNATYWY:
+     1. The Lego Movie  (Animation, Family, Adventure, Comedy, Fantasy)  ⭐7.42  🕐100min
+     2. Back to the Future  (Adventure, Comedy, Science Fiction)  ⭐8.324  🕐116min
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [ 9/20] date_horror_romance_mix
+  Typ: RANDKA  |  Userzy: Igor, Lena
+  Opis: On chce horroru, ona romansu — system musi znaleźć kompromis
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: f16982b2-5c1f-4b59-9f0c-280af6c29159  (12.21s)
+  → POST /recommendation/f16982b2-5c1f-4b59-9f0c-280af6c29159 ...
+  ✅ Rekomendacja OK  (119.99s)
+
+  🎬 GŁÓWNY FILM: Bound
+     Gatunki:     Drama, Thriller, Crime
+     Ocena:       7.2
+     Runtime:     105 min
+     Data:        1996-09-13
+     Poster:      https://image.tmdb.org/t/p/w500/9qAy6UWVw44dGrsyKrdEMt5qIUM.jpg
+
+  💭 THOUGHT:
+     Given the group's preferences for Horror and Drama movies with elements like horror, dark atmosphere, ghost stories, jump scares, macabre, and supernatural horror, 'Closer' is not a suitable choice as it leans more towards romance. However, 'Bound' contains thriller and crime elements which could appeal to both groups.
+
+  📝 REASONING:
+     Bound combines drama and thriller genres with themes of infidelity, money laundering, and lesbian relationship, making it an excellent choice for a group that wants a mix of Drama and Thriller movies. It also contains elements like suspenseful situations and love affairs which could appeal to both Igor and Lena.
+
+  🎥 ALTERNATYWY:
+     1. The Rocky Horror Picture Show  (Comedy, Science Fiction, Fantasy, Horror)  ⭐7.44  🕐99min
+     2. Identity  (Mystery, Thriller)  ⭐7.176  🕐90min
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [10/20] crew_2_identical_vibes
+  Typ: EKIPA  |  Userzy: Kamil, Łukasz
+  Opis: Dwóch kumpli — obaj chcą tego samego
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: 656f9828-9178-4fdb-94e9-a8ff666a4921  (11.58s)
+  → POST /recommendation/656f9828-9178-4fdb-94e9-a8ff666a4921 ...
+  ✅ Rekomendacja OK  (92.49s)
+
+  🎬 GŁÓWNY FILM: The Gangster, the Cop, the Devil
+     Gatunki:     Action, Crime, Thriller
+     Ocena:       7.8
+     Runtime:     110 min
+     Data:        2019-05-15
+     Poster:      https://image.tmdb.org/t/p/w500/oHlM4abRm6BzrRcz9Nup1uidw9H.jpg
+
+  💭 THOUGHT:
+     Given the preferences of both Kamil and Łukasz for action movies with elements like buddy cop, chases, explosions, fast-paced entertainment, and lighthearted content, I chose 'The Gangster, the Cop, the Devil' as it fits well within their criteria. It also has a comedic undertone which could appeal to both members.
+
+  📝 REASONING:
+     This movie features elements like buddy cop and action sequences that align with the group's preferences. The story revolves around a veteran cop and an unstable detective who become partners in order to bring down a heroin-smuggling ring run by an ex-convict crime boss. This fits well within their request for action movies.
+
+  🎥 ALTERNATYWY:
+     1. The Pickup  (Action, Comedy, Crime)  ⭐6.431  🕐94min
+     2. Cobra  (Action, Crime, Thriller)  ⭐6.1  🕐87min
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [11/20] crew_3_diverse_conflict
+  Typ: EKIPA  |  Userzy: Adam, Ewa, Marek
+  Opis: Trzy totalnie różne osoby — horror, romcom, sci-fi
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ❌ Save session failed: 401 — {"detail":"Invalid or expired access token"}
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...
+
+──────────────────────────────────────────────────────────────────────
+  [12/20] crew_4_all_chill
+  Typ: EKIPA  |  Userzy: Szymon, Filip, Kuba, Daniel
+  Opis: Czterech ziomków, pizza, piwo, coś lekkiego
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ❌ Save session failed: 401 — {"detail":"Invalid or expired access token"}
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...

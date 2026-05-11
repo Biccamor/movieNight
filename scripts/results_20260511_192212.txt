@@ -1,0 +1,27 @@
+══════════════════════════════════════════════════════════════════════
+  movieNight — Wyniki scenariuszy testowych
+  Data:    2026-05-11 19:22:12
+  Backend: http://localhost:8010
+  Scenariuszy: 20
+══════════════════════════════════════════════════════════════════════
+
+======================================================================
+  REJESTRACJA I LOGOWANIE
+======================================================================
+  Email: scenario_runner_4ef72388@test.pl
+  ✅ Rejestracja OK: {'message': 'Account created successfully', 'user_id': 'f2f006c5-a794-40ab-a9f5-e9b8538f82e8'}
+  ✅ Login OK — user_id: f2f006c5-a794-40ab-a9f5-e9b8538f82e8
+======================================================================
+
+
+──────────────────────────────────────────────────────────────────────
+  [ 1/20] solo_pizza_chill
+  Typ: SOLO  |  Userzy: Tomek
+  Opis: Jedna osoba, wieczór z pizzą, nic wymagającego
+──────────────────────────────────────────────────────────────────────
+  → POST /recommendation/session ...
+  ✅ Sesja zapisana: a71b797c-d69c-4b87-a1eb-743a710d6d8a  (0.82s)
+  → POST /recommendation/a71b797c-d69c-4b87-a1eb-743a710d6d8a ...
+  ❌ Recommendation failed: 500 — Internal Server Error
+
+  ⏳ Czekam 32s przed kolejnym scenariuszem (rate limit)...

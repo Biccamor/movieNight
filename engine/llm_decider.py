@@ -1,4 +1,4 @@
-from ollama import AsyncClient
+
 from engine.prompts import AGENT_SYSTEM_PROMPT
 from engine.vector import hybrid_search, reranker
 from pydantic import BaseModel, Field
@@ -7,24 +7,24 @@ from datetime import date
 import os
 import time, random
 import logging
+from openai import AsyncOpenAI 
 
 logger = logging.getLogger(__name__)
-client = AsyncClient(host=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
-
+client = AsyncOpenAI(base_url="https://api.groq.com/openai/v1", api_key=os.getenv("GROQ_API_KEY"))
 # ── Schematy dla LLM (tylko to co model może znać) ──────────────────────────
 
 class LlmExtraMovie(BaseModel):
     """Schemat extra filmów zwracanych przez LLM — tylko tytuł i gatunki."""
     movie_title: str
-    genres: list[str]
+    genres: list[str] = Field(default_factory=list)
 
 class LlmOutput(BaseModel):
     """Schemat odpowiedzi LLM — bez poster_path i release_date (LLM ich nie zna)."""
-    thought: str
+    thought: str = ""
     movie_title: str
     reasoning: str = Field(..., description="Description of reasoning in English")
     extra_movies: list[LlmExtraMovie] =  Field(..., description="EXACTLY TWO alternate movies", min_length= 2, max_length=2)
-    genres: list[str]
+    genres: list[str] = Field(default_factory=list)
 
 # ── Schematy odpowiedzi API (z danymi z bazy) ────────────────────────────────
 
@@ -85,21 +85,59 @@ async def decide(session, query, runtime: int, llm_prompt: str, reranker_query: 
     Output:
     """
 
-    response = await client.chat(
-        model="qwen2.5:3b",
-        messages=[
-            {'role': 'system', 
-             'content': AGENT_SYSTEM_PROMPT},
-            {'role': 'user', 
-             'content': user_prompt}
-        ],
-        options={"temperature": 0.25, "top_p": 0.9},
-        format=LlmOutput.model_json_schema()   # LLM dostaje schemat BEZ poster_path i release_date
-    )
-    
-    llm_result = LlmOutput.model_validate_json(response.message.content)  # type: ignore
+    from fastapi import HTTPException
+    from openai import RateLimitError, AuthenticationError, APIConnectionError, APIStatusError
+    from pydantic import ValidationError
+
+    try:
+        response = await client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {"role": "system", "content": AGENT_SYSTEM_PROMPT},
+                {"role": "user",   "content": user_prompt},
+            ],
+            temperature=0.25,
+            top_p=0.9,
+            response_format={"type": "json_object"},
+        )
+        raw_content = response.choices[0].message.content or ""
+
+    except RateLimitError as e:
+        logger.warning(f"Groq rate limit: {e}")
+        raise HTTPException(
+            status_code=429,
+            detail="We have problem with limit of our AI provider. Try again later."
+        )
+    except AuthenticationError as e:
+        logger.error(f"Groq auth error: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="We have problem with authentication of our AI provider. Try again later."
+        )
+    except APIConnectionError as e:
+        logger.error(f"Groq connection error: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="We have problem with connection to our AI provider. Try again later."
+        )
+    except APIStatusError as e:
+        logger.error(f"Groq API error {e.status_code}: {e.message}")
+        raise HTTPException(
+            status_code=502,
+            detail=f"We have problem with AI provider. Try again later."
+        )
+
+    try:
+        llm_result = LlmOutput.model_validate_json(raw_content)
+    except ValidationError as e:
+        logger.error(f"LLM zwrócił nieprawidłowy JSON: {raw_content[:300]}\nBłąd: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="AI zwróciło nieprawidłową odpowiedź — spróbuj ponownie."
+        )
+
     t4 = time.perf_counter()
-    logger.info(f"llm took {t4-t3}")
+    logger.info(f"llm took {t4-t3:.2f}s")
 
     # mapujemy dane z bazy (poster, rok, gatunki, czas trwania, ocena)
     matched = find_movie(llm_result.movie_title)
