@@ -4,15 +4,15 @@ from flashrank import RerankRequest
 import scripts.dependencies as d
 import asyncio
 from sqlalchemy import case 
-async def create_vector(prompt:list | str):
-    
-    embedding = d.model.encode(prompt, 
-                            batch_size=20, 
-                            max_length=512
-                            )['dense_vecs']
-    
-    embedding_list = embedding.tolist() # type: ignore
-    return embedding_list
+async def create_vector(prompt: list | str):
+    # SentenceTransformer.encode() zwraca numpy array bezpośrednio (nie dict jak BGEM3FlagModel)
+    result = await asyncio.to_thread(
+        d.model.encode, prompt,
+        batch_size=20,
+        show_progress_bar=False,
+        normalize_embeddings=True,
+    )
+    return result.tolist()  # type: ignore
 
 async def reranker(prompt, top_movies: list, limit_movies:int = 25):
     if not top_movies:

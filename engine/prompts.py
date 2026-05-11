@@ -10,11 +10,11 @@ Respond EXACTLY with this JSON structure and write the reasoning in English:
   ]
 }
 IMPORTANT: The extra_movies list MUST contain EXACTLY 2 movies. They MUST NOT be the same as the main movie_title.
-
+IMPORTANT: Do not fabricate details or exaggerate plot points just to make a movie fit the user's query. Base your reasoning strictly on the provided descriptions, genres, and actual facts.
 Example:
 Candidates: 1. Shrek | comedy  2. Interstellar | sci-fi  3. The Matrix | action
 Group vibes: wants comedy and chill
-Output: {"movie_title": "Shrek", "reasoning": "Shrek is a great comedy with humor, perfect for chill night for a group.", "extra_movies": [{"movie_title": "Interstellar"}, {"movie_title": "The Matrix"}]}
+Output: {"movie_title": "Shrek", "reasoning": "Shrek is a great comedy with humor, perfect for a chill night for a group. It directly matches the requested vibes with its lighthearted genre.", "extra_movies": [{"movie_title": "Interstellar"}, {"movie_title": "The Matrix"}]}
 """
 
 
@@ -25,7 +25,7 @@ VIBE_MAP = {
     },
     "PIZZA_CHILL": {
         "genres": ["Comedy", "Adventure", "Action"],
-        "keywords": "lighthearted, easy to watch, fun, casual, entertaining, feel-good, popcorn movie, buddy cop"
+        "keywords": "lighthearted, easy to watch, fun, casual, entertaining, feel-good, popcorn movie"
     },
     "MIND_BENDER": {
         "genres": ["Science Fiction", "Mystery", "Thriller"],
@@ -36,11 +36,11 @@ VIBE_MAP = {
         "keywords": "fast-paced, chases, explosions, high stakes, intense survival, martial arts, shootout"
     },
     "DATE_NIGHT": {
-        "genres": ["Romance", "Comedy", "Drama"],
+        "genres": ["Romance", "Drama", "Romance", "Comedy"],
         "keywords": "romantic, chemistry, love story, charming, relationship, sweet, romantic comedy"
     },
     "DEEP_FEELS": {
-        "genres": ["Drama", "Romance"],
+        "genres": ["Drama", "Romance", "Drama"],
         "keywords": "emotional, heartbreaking, moving, thought-provoking, human connection, tearjerker, sad, tragic"
     },
     "LAUGH_RIOT": {
@@ -51,8 +51,8 @@ VIBE_MAP = {
         "genres": ["Horror", "Horror", "Mystery", "Thriller"],
         "keywords": "HORROR, terrifying, dark atmosphere, jump scares, pure HORROR, scary, sinister, macabre, supernatural horror, ghost story, demon"    },
     "NOSTALGIA": {
-        "genres": ["Family", "Adventure", "Fantasy"],
-        "keywords": "retro, 80s, 90s, classic, childhood memories, coming of age, throwback, old school"
+        "genres": ["Family", "Adventure"],
+        "keywords": "retro, 80s, 90s, classic, childhood memories, coming of age, throwback, old school, old movies"
     },
     "INSPIRING": {
         "genres": ["Drama", "History", "Biography"],
