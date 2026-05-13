@@ -55,15 +55,19 @@ def _is_member(movie_session: MovieSessionDB, user_id: str) -> bool:
 
 def _build_session_response(movie_session: MovieSessionDB) -> SessionResponse:
     """Buduje odpowiedź API z modelu bazy danych."""
-    members = [
-        SessionMemberResponse(
-            user_id=UUID(m["user_id"]),
-            user_name=m["user_name"],
-            status=m["status"],
-            preferences=Preferences(**m["preferences"]) if m.get("preferences") else None,
-        )
-        for m in (movie_session.members or [])
-    ]
+    members = []
+    for m in (movie_session.members or []):
+        try:
+            members.append(
+                SessionMemberResponse(
+                    user_id=UUID(str(m.get("user_id"))),
+                    user_name=str(m.get("user_name", "Nieznany")),
+                    status=m.get("status", "pending"),
+                    preferences=Preferences(**m["preferences"]) if m.get("preferences") else None,
+                )
+            )
+        except Exception:
+            pass
     return SessionResponse(
         session_id=movie_session.session_id,
         host_id=movie_session.host_id,
@@ -256,6 +260,33 @@ async def set_member_preferences(
         "all_ready": all_ready,
         "session_status": movie_session.status,
     }
+
+
+@router.get("/my", summary="Pobierz otwarte sesje użytkownika", response_model=list[SessionResponse])
+@limiter.limit("30/minute")
+async def get_my_open_sessions(
+    request: Request,
+    user: dict = Depends(get_current_user),
+    session=Depends(get_session),
+):
+    """
+    Zwraca listę wszystkich sesji użytkownika, które nie mają statusu COMPLETED.
+    """
+    user_id = str(user["user_id"])
+    stmt = select(MovieSessionDB).where(MovieSessionDB.status != "COMPLETED")
+    all_open = session.exec(stmt).all()
+    
+    my_sessions = []
+    for s in all_open:
+        # Avoid crashing if members is None or user_id is missing in some member
+        if any(str(m.get("user_id")) == user_id for m in (s.members or [])):
+            my_sessions.append(s)
+            
+    my_sessions.sort(key=lambda x: str(x.created_at) if x.created_at else "", reverse=True)
+            
+    return [_build_session_response(s) for s in my_sessions]
+
+
 
 
 @router.get("/{session_id}", summary="Pobierz stan sesji", response_model=SessionResponse)
