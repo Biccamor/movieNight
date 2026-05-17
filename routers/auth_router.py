@@ -40,7 +40,7 @@ async def login_account(request: Request, data: Login, session = Depends(get_ses
     login_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Wrong e-mail or password",
-        headers={"WWW-Authenticate": "Bearer"},
+        headers={"WWW-Authenticate": "Bearer"}, # nosec
     )
     
     if not get_user:
@@ -77,7 +77,7 @@ async def refresh_access_token(request: Request, data: RefreshRequest):
     return {
         "access_token": new_tokens["access_token"],
         "refresh_token": new_tokens["refresh_token"],
-        "token_type": "bearer",
+        "token_type": "bearer", # nosec
     }
 
 @router.delete("/delete", summary="Usuń konto")

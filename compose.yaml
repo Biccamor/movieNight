@@ -22,6 +22,10 @@ services:
     container_name: app
     env_file:
       - .env
+    cache_from:
+      - type=gha 
+    cache_to: 
+      - type=gha,mode=max
     environment:
         HF_HUB_DOWNLOAD_TIMEOUT: 60
         WATCHFILES_FORCE_POLLING: "true"
