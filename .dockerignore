@@ -4,6 +4,8 @@ postgres/
 postgres_data/
 
 __pycache__/
+.pytext_cache/
+
 *.py[cod]
 *$py.class
 *.so
@@ -15,6 +17,7 @@ venv/
 env/
 .venv/
 movieNight/
+
 
 .gitignore
 .git/

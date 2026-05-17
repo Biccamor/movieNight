@@ -137,8 +137,12 @@ def test_login_token_is_valid_jwt(mock_select, mock_verify, client, mock_db):
 
 def test_refresh_token_success(client, mock_db):
     """Poprawny refresh token → nowa para tokenów."""
+    import time
     user_id = str(uuid4())
     tokens = signJWT(user_id)
+
+    # JWT exp ma granulację sekundową — czekamy żeby nowy token miał inny exp
+    time.sleep(1.1)
 
     response = client.post("/auth/refresh", json={
         "refresh_token": tokens["refresh_token"],

@@ -17,13 +17,16 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 # ── Pre-mock ciężkich zależności (GPU/ML) ────────────────────────────
-# Te moduły są dostępne tylko w Dockerze — mockujemy je w sys.modules
-# ZANIM cokolwiek z projektu je zaimportuje.
+# Mockujemy TYLKO moduły, których nie da się zaimportować.
+# W Dockerze (gdzie torch/psycopg2 są zainstalowane) — zostawiamy prawdziwe.
+# Lokalnie (bez tych paczek) — wstawiamy MagicMock.
 
 _HEAVY_MODULES = [
     "FlagEmbedding",
     "flashrank",
     "torch",
+    "sentence_transformers",
+    "transformers",
     "pgvector",
     "pgvector.sqlalchemy",
     "psycopg2",
@@ -33,7 +36,10 @@ _HEAVY_MODULES = [
 
 for mod_name in _HEAVY_MODULES:
     if mod_name not in sys.modules:
-        sys.modules[mod_name] = MagicMock()
+        try:
+            __import__(mod_name)
+        except ImportError:
+            sys.modules[mod_name] = MagicMock()
 
 # ── Teraz bezpiecznie importujemy projekt ────────────────────────────
 

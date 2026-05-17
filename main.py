@@ -10,12 +10,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import scripts.dependencies as d
 from database.main_db import create_tables
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from scripts.security import get_rate_limit_key
 from scripts.dependencies import limiter
 
 logger = logging.getLogger(__name__)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
@@ -32,7 +33,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler) # type: ignore
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
 origins = [
     "https://groupmovie.com",
     "http://localhost",
@@ -41,7 +42,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], #TODO: zmienic przed deployem ale do testow zostawic
+    allow_origins=["*"],  #TODO: zmienic przed deployem ale do testow zostawic
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -69,7 +70,10 @@ app.include_router(session_router)
 
 @app.get("/health")
 async def health():
-    return {"status": "OK", "model_loaded": d.flag_model is not None, "reranker_loaded": d.reranker is not None, "db_connected": d.engine is not None}
+    return {"status": "OK", 
+            "model_loaded": d.model is not None, 
+            "reranker_loaded": d.reranker is not None, 
+            "db_connected": d.engine is not None}
 
 @app.get("/")
 async def main():

@@ -66,7 +66,7 @@ VIBE_MAP = {
         "keywords": "emotional, heartbreaking, moving, thought-provoking, human connection, tearjerker, sad, tragic"
     },
     "LAUGH_RIOT": {
-        "genres": ["Comedy"],
+        "genres": ["Comedy", "Comedy"],
         "keywords": "hilarious, laugh out loud, slapstick, funny, jokes, satire, spoof, pure comedy"
     },
     "SPINE_CHILLING": {

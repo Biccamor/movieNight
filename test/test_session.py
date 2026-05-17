@@ -77,20 +77,21 @@ def test_create_session_success(mock_select, mock_invite, client, mock_db, overr
 
 
 def test_create_session_unauthenticated(client, mock_db):
-    """Brak tokena → 403 (HTTPBearer domyślnie zwraca 403)."""
+    """Brak tokena → 401 (HTTPBearer zwraca 401 w FastAPI >= 0.109)."""
     response = client.post("/session/create", json={
         "meeting_type": "EKIPA",
     })
 
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 # ═══════════════════════════════════════════════════════════════════
 #  JOIN SESSION
 # ═══════════════════════════════════════════════════════════════════
 
+@patch("routers.session_router.flag_modified")
 @patch("routers.session_router.select")
-def test_join_session_success(mock_select, client, mock_db, override_current_user):
+def test_join_session_success(mock_select, mock_flag_modified, client, mock_db, override_current_user):
     """Guest dołącza poprawnym kodem → 200."""
     user_id = override_current_user
     host_id = str(uuid4())
@@ -110,6 +111,7 @@ def test_join_session_success(mock_select, client, mock_db, override_current_use
     # Pierwszy exec → MovieSessionDB (po invite_code)
     # Drugi exec → User (po user_id)
     mock_db.exec.return_value.first.side_effect = [mock_session, mock_user]
+    mock_db.refresh = MagicMock()  # session.refresh() na mocku → no-op
 
     response = client.post("/session/join", json={
         "invite_code": "JOINME",
@@ -182,7 +184,8 @@ def test_join_session_not_in_lobby(mock_select, client, mock_db, override_curren
 #  SET PREFERENCES
 # ═══════════════════════════════════════════════════════════════════
 
-def test_set_preferences_success(client, mock_db, override_current_user):
+@patch("routers.session_router.flag_modified")
+def test_set_preferences_success(mock_flag_modified, client, mock_db, override_current_user):
     """Członek podaje preferencje → status zmienia się na ready."""
     user_id = override_current_user
     session_id = uuid4()
@@ -196,6 +199,7 @@ def test_set_preferences_success(client, mock_db, override_current_user):
     )
 
     mock_db.get.return_value = mock_session
+    mock_db.refresh = MagicMock()  # session.refresh() na mocku → no-op
 
     response = client.put(f"/session/{session_id}/preferences", json={
         "preferences": {
@@ -213,7 +217,8 @@ def test_set_preferences_success(client, mock_db, override_current_user):
     assert data["all_ready"] is False  # drugi członek dalej pending
 
 
-def test_set_preferences_all_ready(client, mock_db, override_current_user):
+@patch("routers.session_router.flag_modified")
+def test_set_preferences_all_ready(mock_flag_modified, client, mock_db, override_current_user):
     """Ostatni członek daje preferencje → all_ready=true, status=ALL_READY."""
     user_id = override_current_user
     session_id = uuid4()
@@ -228,6 +233,7 @@ def test_set_preferences_all_ready(client, mock_db, override_current_user):
     )
 
     mock_db.get.return_value = mock_session
+    mock_db.refresh = MagicMock()  # session.refresh() na mocku → no-op
 
     response = client.put(f"/session/{session_id}/preferences", json={
         "preferences": {
