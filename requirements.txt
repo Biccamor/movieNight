@@ -21,3 +21,4 @@ openai==1.100.0
 
 pytest==9.0.3
 flake8==7.3.0
+bandit==1.9.4

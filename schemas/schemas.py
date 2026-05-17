@@ -5,7 +5,7 @@ from uuid import uuid4, UUID
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 VibeType = Literal["PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT", "DEEP_FEELS", "LAUGH_RIOT", "SPINE_CHILLING", 
-                   "NOSTALGIA", "INSPIRING", "EPIC_JOURNEY", "GUILTY_PLEASURE", "AMBITIOUS"]
+                   "FAMILY_FUN", "INSPIRING", "EPIC_JOURNEY", "GUILTY_PLEASURE", "AMBITIOUS"]
 
 class Preferences(BaseModel): #podawane przy nowym requescie/sesji
     vibes: List[VibeType] = Field(default_factory=list, max_length=12)

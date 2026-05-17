@@ -16,7 +16,7 @@ async def get_preferences_options():
         "DEEP_FEELS",
         "LAUGH_RIOT",
         "SPINE_CHILLING",
-        "NOSTALGIA",
+        "FAMILY_FUN",
         "INSPIRING",
         "EPIC_JOURNEY",
         "GUILTY_PLEASURE"

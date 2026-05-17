@@ -78,12 +78,12 @@ SCENARIOS = [
         ],
     },
     {
-        # 4. Solo nostalgiczny wieczór — ery 80s/90s
-        "name": "solo_nostalgia_trip",
-        "description": "Powrót do dzieciństwa — klasyki z lat 80/90",
+        # 4. Solo family fun — animacje, Pixar, Disney
+        "name": "solo_family_fun",
+        "description": "Wieczór z animacjami — Pixar, Disney, coś wholesome",
         "meeting_type": "SOLO",
         "users": [
-            _user("Piotr", vibes=["NOSTALGIA", "EPIC_JOURNEY"], eras=["1980s", "1990s"], max_runtime=150),
+            _user("Piotr", vibes=["FAMILY_FUN", "EPIC_JOURNEY"], max_runtime=150),
         ],
     },
     {
@@ -238,9 +238,9 @@ SCENARIOS = [
         "description": "Mama, tata, dziecko — nic strasznego, nic ambitnego",
         "meeting_type": "RODZINA",
         "users": [
-            _user("Mama", vibes=["PIZZA_CHILL", "NOSTALGIA"], hard_nos=["SPINE_CHILLING"]),
+            _user("Mama", vibes=["PIZZA_CHILL", "FAMILY_FUN"], hard_nos=["SPINE_CHILLING"]),
             _user("Tata", vibes=["EPIC_JOURNEY", "PIZZA_CHILL"], hard_nos=["SPINE_CHILLING"]),
-            _user("Dziecko", vibes=["NOSTALGIA", "LAUGH_RIOT"], hard_nos=["SPINE_CHILLING", "DEEP_FEELS"]),
+            _user("Dziecko", vibes=["FAMILY_FUN", "LAUGH_RIOT"], hard_nos=["SPINE_CHILLING", "DEEP_FEELS"]),
         ],
     },
     {
@@ -256,16 +256,16 @@ SCENARIOS = [
         ],
     },
     {
-        # 18. Rodzina 5 osób — wszyscy nostalgiczni (harmonia)
-        "name": "family_nostalgia_harmony",
-        "description": "Cała rodzina wspomina stare czasy — klasyki",
+        # 18. Rodzina 5 osób — wszyscy chcą family fun (harmonia)
+        "name": "family_fun_harmony",
+        "description": "Cała rodzina — coś dla każdego, animacje i komedie familijne",
         "meeting_type": "RODZINA",
         "users": [
-            _user("Babcia", vibes=["NOSTALGIA", "INSPIRING"], eras=["1970s", "1980s"], max_runtime=100),
-            _user("Dziadek", vibes=["NOSTALGIA", "EPIC_JOURNEY"], eras=["1960s", "1970s"], max_runtime=120),
-            _user("Mama", vibes=["NOSTALGIA"], eras=["1990s"]),
-            _user("Tata", vibes=["NOSTALGIA", "PIZZA_CHILL"], eras=["1990s"]),
-            _user("Wnuk", vibes=["NOSTALGIA", "LAUGH_RIOT"], eras=["2000s"]),
+            _user("Babcia", vibes=["FAMILY_FUN", "INSPIRING"], max_runtime=100),
+            _user("Dziadek", vibes=["FAMILY_FUN", "EPIC_JOURNEY"], max_runtime=120),
+            _user("Mama", vibes=["FAMILY_FUN"]),
+            _user("Tata", vibes=["FAMILY_FUN", "PIZZA_CHILL"]),
+            _user("Wnuk", vibes=["FAMILY_FUN", "LAUGH_RIOT"]),
         ],
     },
 
@@ -295,7 +295,7 @@ SCENARIOS = [
         "users": [
             _user("MaxVibes", vibes=[
                 "PIZZA_CHILL", "MIND_BENDER", "ADRENALINE", "DATE_NIGHT",
-                "DEEP_FEELS", "LAUGH_RIOT", "SPINE_CHILLING", "NOSTALGIA",
+                "DEEP_FEELS", "LAUGH_RIOT", "SPINE_CHILLING", "FAMILY_FUN",
                 "INSPIRING", "EPIC_JOURNEY", "GUILTY_PLEASURE", "AMBITIOUS",
             ], max_runtime=240, allow_seen=True),
         ],
