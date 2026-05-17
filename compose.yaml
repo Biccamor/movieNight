@@ -18,14 +18,16 @@ services:
       retries: 5
       start_period: 15s
   app:
-    build: .
+    build:
+      context: .
+      cache_from:
+        - type=gha 
+      cache_to: 
+        - type=gha,mode=max
     container_name: app
     env_file:
       - .env
-    cache_from:
-      - type=gha 
-    cache_to: 
-      - type=gha,mode=max
+
     environment:
         HF_HUB_DOWNLOAD_TIMEOUT: 60
         WATCHFILES_FORCE_POLLING: "true"
