@@ -71,10 +71,10 @@ class RecomService:
                 vibe_info = VIBE_MAP.get(vibe)
                 if not vibe_info: continue
                 
-                for genre in vibe_info["genres"]:
+                for genre, weight in vibe_info["genres"].items():
                     if genre not in genre_data:
                         genre_data[genre] = {"count": 0, "keywords": set()}
-                    genre_data[genre]["count"] += 1
+                    genre_data[genre]["count"] += weight
                     
                     kw_list = [k.strip() for k in vibe_info["keywords"].split(",")]
                     genre_data[genre]["keywords"].update(kw_list)
@@ -100,8 +100,8 @@ class RecomService:
             for v in vibes:
                 v_info = VIBE_MAP.get(v)
                 if v_info:
-                    for g in v_info["genres"]:
-                        user_genres[g] = user_genres.get(g, 0) + 1
+                    for g, w in v_info["genres"].items():
+                        user_genres[g] = user_genres.get(g, 0) + w
                     user_keywords.update([k.strip() for k in v_info["keywords"].split(",")])
             
             genres_list = [f"{g} (x{count})" if count > 1 else g for g, count in user_genres.items()]
@@ -170,9 +170,9 @@ class RecomService:
             for v in vibes:
                 v_info = VIBE_MAP.get(v)
                 if v_info:
-                    for g in v_info["genres"]:
-                        user_genres[g] = user_genres.get(g, 0) + 1
-                        group_genres[g] = group_genres.get(g, 0) + 1
+                    for g, w in v_info["genres"].items():
+                        user_genres[g] = user_genres.get(g, 0) + w
+                        group_genres[g] = group_genres.get(g, 0) + w
                     kw_list = [k.strip() for k in v_info["keywords"].split(",")]
                     user_keywords.update(kw_list)
                     group_keywords.update(kw_list)
